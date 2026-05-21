@@ -1,7 +1,7 @@
 # 閃筋 (Hiramekin) 設計仕様書
 
 **作成日**: 2026-05-21  
-**バージョン**: 1.3  
+**バージョン**: 1.4  
 **ステータス**: 承認済み
 
 ---
@@ -88,12 +88,13 @@ Android      iOS    Web (PWA)
 
 ```typescript
 interface Memo {
-  id: string         // UUID
-  content: string    // テキスト本文（数式込み）
-  isPinned: boolean  // ピン留め
+  id: string          // UUID
+  content: string     // テキスト本文（数式込み）
+  isPinned: boolean   // ピン留め
   isArchived: boolean // アーカイブ（通常リストから非表示）
-  createdAt: number  // Unix timestamp (ms)
-  updatedAt: number  // Unix timestamp (ms)
+  notifyAt: number | null // 通知予定時刻 (Unix timestamp ms)。null = 通知なし
+  createdAt: number   // Unix timestamp (ms)
+  updatedAt: number   // Unix timestamp (ms)
 }
 
 interface AppSettings {
@@ -118,6 +119,7 @@ create table memos (
   content text not null,
   is_pinned boolean default false,
   is_archived boolean default false,
+  notify_at timestamptz default null,
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
@@ -158,7 +160,7 @@ create table memos (
 | 100 + 200 = [300]         |  リアルタイム計算
 | 売上 1000 * 0.08 = [80]   |  [結果]タップで切替
 |                           |
-| [ピン留めトグル]  [アーカイブ] |
+| [ピン留めトグル]  [通知] [アーカイブ] |
 +---------------------------+
 | [今日] [時刻] [マイク]    |  キーボード上部ツールバー
 +--[キーボード]--------------+
@@ -313,6 +315,48 @@ UIアニメーションを使わずに操作の手応えを伝えるため、ア
 
 ---
 
+## 通知機能
+
+メモに日付が含まれている場合、その日時の前に通知を送ることができる。
+
+### プラットフォーム対応
+
+| プラットフォーム | v1 | v2 |
+| --- | --- | --- |
+| Android | expo-notifications | 同左 |
+| iOS | expo-notifications | 同左 |
+| Windows / macOS / Linux (PWA) | 非対応 | Web Push + Service Worker |
+
+### 日付の検出
+
+メモ内容を走査し、キーボードツールバーが挿入する `YYYY/MM/DD` 形式の最初の日付を検出する。複数の日付が含まれる場合は最初の1件のみ対象とする（v1）。
+
+### UI フロー
+
+```text
+editingモード: メモ内に YYYY/MM/DD が検出される
+ └─ ヘッダーに [通知] ボタンが出現
+      └─ タップ → 事前通知時間を選択
+           ├─ 当日 朝8時
+           ├─ 1日前 朝8時
+           ├─ 1週間前 朝8時
+           └─ 通知しない（設定済みを解除）
+      └─ 選択 → notifyAt を計算して保存 → 通知をスケジュール
+```
+
+### 通知のスケジューリング
+
+- `notifyAt` が保存されると `expo-notifications` でローカル通知をスケジュールする
+- メモが更新・アーカイブされた場合は既存の通知をキャンセルして再スケジュールする
+- 通知タップ → アプリを開き、対象メモを editing モードで表示する
+
+### 通知権限
+
+- アプリ初回起動時ではなく、ユーザーが最初に通知を設定しようとしたタイミングで権限を要求する
+- 権限が拒否された場合はトーストで案内する（強制しない）
+
+---
+
 ## 自動保存ロジック
 
 ```text
@@ -365,6 +409,7 @@ v1は設定項目なし（将来用に画面だけ用意）。
 | 優先度 | 機能 |
 | --- | --- |
 | 最重要 | Androidホーム画面ウィジェット |
+| 高 | 通知機能のPWA/デスクトップ対応（Web Push + Service Worker） |
 | 高 | Supabaseによるデバイス間同期 |
 | 中 | タグ機能 |
 | 中 | iOSウィジェット（Swiftが必要） |
