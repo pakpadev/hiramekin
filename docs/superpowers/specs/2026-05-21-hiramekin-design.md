@@ -42,6 +42,8 @@
 | ストレージ (モバイル) | expo-sqlite または AsyncStorage | オフライン完結 |
 | ストレージ (Web) | IndexedDB (idb) | オフライン完結 |
 | 計算エンジン | mathjs (軽量バンドル) | 数式評価の信頼性 |
+| 音声入力 (Web/PWA) | Web Speech API | ブラウザ標準の音声認識を利用 |
+| 音声入力 (Android/iOS) | expo-speech-recognition | OSネイティブ音声認識をExpo/React Nativeから利用 |
 | 将来の同期 | Supabase | スキーマ定義のみ、v1では未実装 |
 | ナビゲーション | なし（単一画面・状態管理のみ） | 画面遷移ゼロで最速UXを実現 |
 
@@ -77,7 +79,7 @@ Android      iOS    Web (PWA)
   hooks/
     useMemos      メモCRUD・検索・アーカイブ
     useCalc       数式評価
-    useVoice      音声入力（expo-speech または OS API）
+    useVoice      音声入力（Web Speech API / expo-speech-recognition）
     useHaptics    ハプティクスフィードバック（expo-haptics）
   native/         v2ウィジェット用ネイティブコード置き場（空フォルダ）
 ```
@@ -257,7 +259,7 @@ searching
 
 ## 音声入力
 
-キーボードツールバーのマイクボタンで起動。OSネイティブの音声認識（Android: SpeechRecognizer、iOS: SFSpeechRecognizer）を `expo-speech` 経由で呼び出す。
+キーボードツールバーのマイクボタンで起動。`expo-speech` は Text-to-Speech 用のため、音声入力には使用しない。Web/PWAでは Web Speech API を使用し、Android/iOSでは `expo-speech-recognition` 経由で OS ネイティブ音声認識（Android: SpeechRecognizer、iOS: SFSpeechRecognizer）を呼び出す。
 
 ```text
 マイクタップ
@@ -269,7 +271,9 @@ searching
 
 - 認識結果はテキストとしてそのまま挿入（変換確認なし）
 - 音声入力後も通常のテキスト編集が可能
-- PWA（デスクトップ）では Web Speech API にフォールバック
+- PWA（デスクトップ）では Web Speech API を使用
+- Android/iOS では `expo-speech-recognition` を使用
+- `expo-speech-recognition` はネイティブモジュールと config plugin を含むため、Android/iOSビルド前に Expo prebuild で native project へ反映する
 
 ---
 
