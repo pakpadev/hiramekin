@@ -1,7 +1,7 @@
 # 閃筋 (Hiramekin) 設計仕様書
 
 **作成日**: 2026-05-21  
-**バージョン**: 1.2  
+**バージョン**: 1.3  
 **ステータス**: 承認済み
 
 ---
@@ -65,7 +65,8 @@ Android      iOS    Web (PWA)
     MemoList      ピン留め＋時系列リスト
     SearchBar     検索バー
     CalcOverlay      数式結果オーバーレイ
-    KeyboardToolbar  キーボード上部ツールバー（今日ボタンなど）
+    KeyboardToolbar  キーボード上部ツールバー（今日・時刻・マイクボタン）
+    VoiceInput       音声入力オーバーレイ
   services/
     storage.ts    IStorage インターフェース定義
     adapters/
@@ -74,8 +75,10 @@ Android      iOS    Web (PWA)
       supabase.ts       将来用（インターフェースのみ、実装空）
     calculator.ts   数式評価ロジック
   hooks/
-    useMemos      メモCRUD・検索
+    useMemos      メモCRUD・検索・アーカイブ
     useCalc       数式評価
+    useVoice      音声入力（expo-speech または OS API）
+    useHaptics    ハプティクスフィードバック（expo-haptics）
   native/         v2ウィジェット用ネイティブコード置き場（空フォルダ）
 ```
 
@@ -85,11 +88,12 @@ Android      iOS    Web (PWA)
 
 ```typescript
 interface Memo {
-  id: string        // UUID
-  content: string   // テキスト本文（数式込み）
-  isPinned: boolean // ピン留め
-  createdAt: number // Unix timestamp (ms)
-  updatedAt: number // Unix timestamp (ms)
+  id: string         // UUID
+  content: string    // テキスト本文（数式込み）
+  isPinned: boolean  // ピン留め
+  isArchived: boolean // アーカイブ（通常リストから非表示）
+  createdAt: number  // Unix timestamp (ms)
+  updatedAt: number  // Unix timestamp (ms)
 }
 
 interface AppSettings {
@@ -100,6 +104,8 @@ interface AppSettings {
 interface UIState {
   editingMemoId: string | null // null = 新規作成モード
   searchQuery: string
+  showArchive: boolean         // アーカイブ一覧表示中
+  isListening: boolean         // 音声入力中
 }
 ```
 
@@ -111,6 +117,7 @@ create table memos (
   user_id uuid references auth.users,
   content text not null,
   is_pinned boolean default false,
+  is_archived boolean default false,
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
@@ -151,9 +158,9 @@ create table memos (
 | 100 + 200 = [300]         |  リアルタイム計算
 | 売上 1000 * 0.08 = [80]   |  [結果]タップで切替
 |                           |
-| [ピン留めトグル]  [削除]   |
+| [ピン留めトグル]  [アーカイブ] |
 +---------------------------+
-| [今日] [時刻]             |  キーボード上部ツールバー
+| [今日] [時刻] [マイク]    |  キーボード上部ツールバー
 +--[キーボード]--------------+
   キーボードを閉じる or 入力エリア外タップ → browsing に戻る
   （離脱時に自動保存）
@@ -201,10 +208,11 @@ searching
 
 キーボード展開時に上部に表示されるツールバー。カーソル位置にテキストを挿入する。
 
-| ボタン | 挿入されるテキスト | 用途 |
+| ボタン | 動作 | 用途 |
 | --- | --- | --- |
-| 今日 | `2026/05/21`（実行時の日付） | 日付メモの起点 |
-| 時刻 | `22:30`（実行時の時刻） | 時刻メモの起点 |
+| 今日 | `2026/05/21` をカーソル位置に挿入 | 日付メモの起点 |
+| 時刻 | `22:30` をカーソル位置に挿入 | 時刻メモの起点 |
+| マイク | 音声入力を開始 | ハンズフリー入力 |
 
 ### 日付・時刻の編集方針
 
@@ -245,6 +253,66 @@ searching
 
 ---
 
+## 音声入力
+
+キーボードツールバーのマイクボタンで起動。OSネイティブの音声認識（Android: SpeechRecognizer、iOS: SFSpeechRecognizer）を `expo-speech` 経由で呼び出す。
+
+```text
+マイクタップ
+ └─ 音声入力オーバーレイ表示（isListening = true）
+      ├─ 認識中: 波形アニメーション表示
+      ├─ 認識テキスト確定 → カーソル位置に挿入、オーバーレイ非表示
+      └─ キャンセル / タイムアウト → オーバーレイ非表示
+```
+
+- 認識結果はテキストとしてそのまま挿入（変換確認なし）
+- 音声入力後も通常のテキスト編集が可能
+- PWA（デスクトップ）では Web Speech API にフォールバック
+
+---
+
+## アーカイブ
+
+削除の代わりにアーカイブへ退避する。通常リストには表示されないが失われない。
+
+### 操作
+
+- editingモードのヘッダー「アーカイブ」ボタンタップ → 即アーカイブ（確認ダイアログなし）
+- アーカイブ一覧は SettingsScreen 内の「アーカイブを見る」からアクセス
+
+### 自動削除ルールの変更
+
+| ケース | 旧動作 | 新動作 |
+| --- | --- | --- |
+| 既存メモを空にして離脱 | 即削除 | アーカイブに移動 |
+| 新規メモを空のまま離脱 | 保存しない | 保存しない（変わらず） |
+
+### アーカイブ一覧
+
+```text
+SettingsScreen
+ └─ アーカイブを見る
+      ├─ アーカイブ済みメモの一覧（時系列）
+      ├─ タップ → 復元（isArchived = false）
+      └─ 完全削除ボタン（長押しで確認）
+```
+
+---
+
+## ハプティクスフィードバック
+
+`expo-haptics` を使用。モバイルのみ有効（PWAでは無視）。
+
+| タイミング | 種類 | 意味 |
+| --- | --- | --- |
+| 自動保存完了 | Light Impact | 「捕まえた」の確認 |
+| アーカイブ実行 | Medium Impact | 操作の区切り |
+| ピン留めトグル | Selection Changed | 状態変更 |
+
+UIアニメーションを使わずに操作の手応えを伝えるため、アニメーション「最小限」方針と矛盾しない。
+
+---
+
 ## 自動保存ロジック
 
 ```text
@@ -257,8 +325,8 @@ searching
   editingモード離脱時（キーボードclose / 外タップ）に即時保存
 
 空のメモ:
-  入力エリアが空のままeditingモードを離脱した場合は保存しない
-  既存メモを空にした場合は削除確認なしで削除
+  入力エリアが空のままeditingモードを離脱した場合は保存しない（新規のみ）
+  既存メモを空にして離脱した場合はアーカイブに移動（即削除しない）
 ```
 
 ---
