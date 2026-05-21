@@ -858,7 +858,8 @@ jest.mock('@/services/storage', () => {
   const memos: any[] = []
   return {
     getStorage: () => ({
-      getAll: jest.fn(async () => [...memos]),
+      getAll: jest.fn(async () => memos.filter((m) => !m.isArchived)),
+      getArchived: jest.fn(async () => memos.filter((m) => m.isArchived)),
       save: jest.fn(async (m: any) => {
         const idx = memos.findIndex((x) => x.id === m.id)
         if (idx >= 0) memos[idx] = m
@@ -1219,13 +1220,20 @@ git commit -m "feat: add useHaptics hook"
 **Files:**
 - Create: `src/hooks/useVoice.ts`
 
-- [ ] **Step 1: useVoice を実装する**
+- [ ] **Step 1: `@react-native-voice/voice` をインストールする**
+
+```bash
+docker exec -it hiramekin-test-1 npm install @react-native-voice/voice
+```
+
+> **注意:** このライブラリはネイティブモジュールを含む。Android/iOSビルド前に `npx expo prebuild` を再実行してリンクを行うこと。Web環境では使用しない（Web Speech API を使用）。
+
+- [ ] **Step 2: useVoice を実装する**
 
 ```typescript
 // src/hooks/useVoice.ts
 import { useState, useCallback } from 'react'
 import { Platform } from 'react-native'
-import * as ExpoSpeech from 'expo-speech'
 
 type OnResult = (text: string) => void
 
@@ -1266,9 +1274,7 @@ export function useVoice(onResult: OnResult) {
 }
 ```
 
-> **注意:** モバイルの音声認識には `@react-native-voice/voice` が必要。v1リリース前に `npm install @react-native-voice/voice` を実行してネイティブリンクを行うこと。
-
-- [ ] **Step 2: コミットする**
+- [ ] **Step 3: コミットする**
 
 ```bash
 git add src/hooks/useVoice.ts
@@ -2443,7 +2449,7 @@ git commit -m "feat: add SettingsScreen with archive management"
 
 ```typescript
 // App.tsx
-import React, { useState, useRef, useCallback, useColorScheme } from 'react'
+import React, { useState, useRef, useCallback, useEffect, useColorScheme } from 'react'
 import {
   View,
   TouchableOpacity,
@@ -2461,6 +2467,7 @@ import { useHaptics } from '@/hooks/useHaptics'
 import { useVoice } from '@/hooks/useVoice'
 import { useNotifications } from '@/hooks/useNotifications'
 import { detectDate } from '@/services/notifications'
+import * as Notifications from 'expo-notifications'
 import { MemoList } from '@/components/MemoList'
 import { SearchBar } from '@/components/SearchBar'
 import { InputArea } from '@/components/InputArea'
@@ -2521,6 +2528,15 @@ export default function App() {
     [pinnedMemos, regularMemos]
   )
 
+  // 通知タップ → 対象メモを editing モードで開く
+  useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+      const memoId = response.notification.request.content.data?.memoId as string | undefined
+      if (memoId) handleSelectMemo(memoId)
+    })
+    return () => subscription.remove()
+  }, [handleSelectMemo])
+
   // 新規メモ: 最初のキー入力でIDを発行してストレージに保存（仕様: 入力開始と同時）
   const handleNewMemoFirstKeyPress = useCallback(async (text: string) => {
     const id = await createMemo(text)
@@ -2544,6 +2560,9 @@ export default function App() {
     const { editingMemoId } = uiState
     if (editingMemoId) {
       if (inputContent.trim() === '') {
+        // 既存メモを空にして離脱 → 通知キャンセル後アーカイブ
+        const memo = [...pinnedMemos, ...regularMemos].find((m) => m.id === editingMemoId)
+        if (memo?.notifyAt) await cancelNotification(editingMemoId)
         await archiveMemo(editingMemoId)
       } else {
         await updateMemo(editingMemoId, inputContent)
@@ -2555,7 +2574,7 @@ export default function App() {
     }
     setInputContent('')
     setUiState((s) => ({ ...s, editingMemoId: null }))
-  }, [uiState, inputContent])
+  }, [uiState, inputContent, pinnedMemos, regularMemos])
 
   const handleSearch = useCallback(
     async (query: string) => {
@@ -2593,6 +2612,8 @@ export default function App() {
 
   const handleArchive = async () => {
     if (uiState.editingMemoId) {
+      // 通知がスケジュール済みならキャンセルしてからアーカイブ
+      if (currentMemo?.notifyAt) await cancelNotification(uiState.editingMemoId)
       await archiveMemo(uiState.editingMemoId)
       await trigger('archive')
       setInputContent('')
@@ -2857,6 +2878,7 @@ create table memos (
   content text not null,
   is_pinned boolean default false,
   is_archived boolean default false,
+  notify_at timestamptz default null,
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
