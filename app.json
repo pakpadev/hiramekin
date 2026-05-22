@@ -2,7 +2,7 @@
   "expo": {
     "name": "閃筋",
     "slug": "hiramekin",
-    "version": "1.0.0",
+    "version": "1.0.1-beta",
     "icon": "./assets/icon.png",
     "splash": {
       "image": "./assets/splash.png",

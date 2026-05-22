@@ -82,7 +82,7 @@ describe('SettingsScreen', () => {
     fireEvent.press(screen.getByText('Android APKをダウンロード'))
 
     expect(Linking.openURL).toHaveBeenCalledWith(
-      'https://github.com/pakpadev/hiramekin/releases/download/v1.0.0-beta/hiramekin-v1.0.0-beta.apk',
+      'https://github.com/pakpadev/hiramekin/releases/download/v1.0.1-beta/hiramekin-v1.0.1-beta.apk',
     )
   })
 })

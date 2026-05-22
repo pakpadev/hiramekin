@@ -18,7 +18,7 @@ interface SettingsScreenProps {
 }
 
 const APK_DOWNLOAD_URL =
-  'https://github.com/pakpadev/hiramekin/releases/download/v1.0.0-beta/hiramekin-v1.0.0-beta.apk'
+  'https://github.com/pakpadev/hiramekin/releases/download/v1.0.1-beta/hiramekin-v1.0.1-beta.apk'
 
 export function SettingsScreen({ onClose, isDark = false }: SettingsScreenProps) {
   const [archivedMemos, setArchivedMemos] = useState<Memo[]>([])
@@ -173,7 +173,7 @@ export function SettingsScreen({ onClose, isDark = false }: SettingsScreenProps)
           Android APKをダウンロード
         </Text>
         <Text style={[styles.menuDescription, { color: isDark ? '#aaa' : '#666' }]}>
-          v1.0.0 beta の直接配布ページを開く
+          v1.0.1 beta の直接配布ページを開く
         </Text>
       </TouchableOpacity>
     </View>

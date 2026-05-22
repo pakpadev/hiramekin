@@ -1,9 +1,9 @@
 param(
   [string]$Owner = "pakpadev",
   [string]$Repo = "hiramekin",
-  [string]$Tag = "v1.0.0-beta",
-  [string]$ApkPath = "artifacts/releases/hiramekin-v1.0.0-beta.apk",
-  [string]$ReleaseNotesPath = "docs/release/v1.0.0-beta.md"
+  [string]$Tag = "v1.0.1-beta",
+  [string]$ApkPath = "artifacts/releases/hiramekin-v1.0.1-beta.apk",
+  [string]$ReleaseNotesPath = "docs/release/v1.0.1-beta.md"
 )
 
 $ErrorActionPreference = "Stop"
