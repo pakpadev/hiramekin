@@ -12,9 +12,10 @@ import type { Memo } from '@/types'
 
 interface SettingsScreenProps {
   onClose: () => void
+  isDark?: boolean
 }
 
-export function SettingsScreen({ onClose }: SettingsScreenProps) {
+export function SettingsScreen({ onClose, isDark = false }: SettingsScreenProps) {
   const [archivedMemos, setArchivedMemos] = useState<Memo[]>([])
   const [showArchive, setShowArchive] = useState(false)
   const storage = useMemo(() => getStorage(), [])
@@ -51,22 +52,45 @@ export function SettingsScreen({ onClose }: SettingsScreenProps) {
 
   if (showArchive) {
     return (
-      <View style={styles.container}>
-        <View style={styles.header}>
+      <View
+        style={[
+          styles.container,
+          { backgroundColor: isDark ? '#111' : '#fff' },
+        ]}
+      >
+        <View
+          style={[
+            styles.header,
+            { borderBottomColor: isDark ? '#303030' : '#ccc' },
+          ]}
+        >
           <TouchableOpacity
             accessibilityRole="button"
             onPress={() => setShowArchive(false)}
           >
             <Text style={styles.back}>戻る</Text>
           </TouchableOpacity>
-          <Text style={styles.title}>アーカイブ</Text>
+          <Text style={[styles.title, { color: isDark ? '#f2f2f2' : '#111' }]}>
+            アーカイブ
+          </Text>
         </View>
         <FlatList
           data={archivedMemos}
           keyExtractor={(memo) => memo.id}
           renderItem={({ item }) => (
-            <View style={styles.archiveItem}>
-              <Text style={styles.archiveContent} numberOfLines={1}>
+            <View
+              style={[
+                styles.archiveItem,
+                { borderBottomColor: isDark ? '#303030' : '#eee' },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.archiveContent,
+                  { color: isDark ? '#f2f2f2' : '#111' },
+                ]}
+                numberOfLines={1}
+              >
                 {item.content}
               </Text>
               <View style={styles.archiveActions}>
@@ -86,7 +110,9 @@ export function SettingsScreen({ onClose }: SettingsScreenProps) {
             </View>
           )}
           ListEmptyComponent={
-            <Text style={styles.empty}>アーカイブはありません</Text>
+            <Text style={[styles.empty, { color: isDark ? '#888' : '#999' }]}>
+              アーカイブはありません
+            </Text>
           }
         />
       </View>
@@ -94,19 +120,36 @@ export function SettingsScreen({ onClose }: SettingsScreenProps) {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: isDark ? '#111' : '#fff' },
+      ]}
+    >
+      <View
+        style={[
+          styles.header,
+          { borderBottomColor: isDark ? '#303030' : '#ccc' },
+        ]}
+      >
         <TouchableOpacity accessibilityRole="button" onPress={onClose}>
           <Text style={styles.back}>閉じる</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>設定</Text>
+        <Text style={[styles.title, { color: isDark ? '#f2f2f2' : '#111' }]}>
+          設定
+        </Text>
       </View>
       <TouchableOpacity
         accessibilityRole="button"
-        style={styles.menuItem}
+        style={[
+          styles.menuItem,
+          { borderBottomColor: isDark ? '#303030' : '#eee' },
+        ]}
         onPress={() => setShowArchive(true)}
       >
-        <Text style={styles.menuLabel}>アーカイブを見る</Text>
+        <Text style={[styles.menuLabel, { color: isDark ? '#f2f2f2' : '#111' }]}>
+          アーカイブを見る
+        </Text>
       </TouchableOpacity>
     </View>
   )
@@ -122,7 +165,6 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   archiveItem: {
-    borderBottomColor: '#eee',
     borderBottomWidth: StyleSheet.hairlineWidth,
     padding: 16,
   },
@@ -132,7 +174,6 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   container: {
-    backgroundColor: '#fff',
     flex: 1,
   },
   deleteButton: {
@@ -146,13 +187,11 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    borderBottomColor: '#ccc',
     borderBottomWidth: StyleSheet.hairlineWidth,
     flexDirection: 'row',
     padding: 16,
   },
   menuItem: {
-    borderBottomColor: '#eee',
     borderBottomWidth: StyleSheet.hairlineWidth,
     padding: 16,
   },

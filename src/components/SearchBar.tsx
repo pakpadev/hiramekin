@@ -10,17 +10,23 @@ import {
 interface SearchBarProps {
   value: string
   onChange: (text: string) => void
+  isDark?: boolean
 }
 
-export function SearchBar({ value, onChange }: SearchBarProps) {
+export function SearchBar({ value, onChange, isDark = false }: SearchBarProps) {
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: isDark ? '#242424' : '#f0f0f0' },
+      ]}
+    >
       <TextInput
-        style={[styles.input, webInputStyle]}
+        style={[styles.input, { color: isDark ? '#f7f7f7' : '#111' }, webInputStyle]}
         value={value}
         onChangeText={onChange}
         placeholder="検索"
-        placeholderTextColor="#999"
+        placeholderTextColor={isDark ? '#777' : '#999'}
         returnKeyType="search"
       />
       {value.length > 0 ? (
@@ -30,7 +36,9 @@ export function SearchBar({ value, onChange }: SearchBarProps) {
           testID="clear-button"
           onPress={() => onChange('')}
         >
-          <Text style={styles.clear}>×</Text>
+          <Text style={[styles.clear, { color: isDark ? '#aaa' : '#888' }]}>
+            ×
+          </Text>
         </TouchableOpacity>
       ) : null}
     </View>

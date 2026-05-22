@@ -9,6 +9,8 @@ interface InputAreaProps {
   onBlur: () => void
   autoFocus: boolean
   insertRef?: MutableRefObject<((text: string) => void) | null>
+  focusRef?: MutableRefObject<(() => void) | null>
+  isDark?: boolean
 }
 
 export function InputArea({
@@ -17,6 +19,8 @@ export function InputArea({
   onBlur,
   autoFocus,
   insertRef,
+  focusRef,
+  isDark = false,
 }: InputAreaProps) {
   const inputRef = useRef<TextInput>(null)
   const selectionRef = useRef({ start: 0, end: 0 })
@@ -35,17 +39,29 @@ export function InputArea({
     }
   }
 
+  if (focusRef) {
+    focusRef.current = () => {
+      inputRef.current?.focus()
+    }
+  }
+
   return (
     <View style={styles.container}>
       <TextInput
         ref={inputRef}
         testID="memo-input"
-        style={[styles.input, webInputStyle]}
+        style={[
+          styles.input,
+          {
+            color: isDark ? '#f7f7f7' : '#111',
+          },
+          webInputStyle,
+        ]}
         value={content}
         onChangeText={onChange}
         onBlur={onBlur}
         placeholder="メモを書く"
-        placeholderTextColor="#aaa"
+        placeholderTextColor={isDark ? '#777' : '#aaa'}
         onSelectionChange={(event) => {
           selectionRef.current = event.nativeEvent.selection
         }}
@@ -68,6 +84,7 @@ export function InputArea({
                 result={result}
                 isCollapsed={isCollapsed(index)}
                 onToggle={() => toggleCollapse(index)}
+                isDark={isDark}
               />
             )
           })}

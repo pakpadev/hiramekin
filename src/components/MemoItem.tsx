@@ -4,27 +4,39 @@ import type { Memo } from '@/types'
 interface MemoItemProps {
   memo: Memo
   onPress: (id: string) => void
+  isDark?: boolean
 }
 
-export function MemoItem({ memo, onPress }: MemoItemProps) {
+export function MemoItem({ memo, onPress, isDark = false }: MemoItemProps) {
   const preview = memo.content.split('\n')[0] || ''
 
   return (
     <TouchableOpacity
       accessibilityRole="button"
-      style={styles.container}
+      style={[
+        styles.container,
+        { borderBottomColor: isDark ? '#303030' : '#ddd' },
+      ]}
       onPress={() => onPress(memo.id)}
     >
-      <Text style={styles.content} numberOfLines={1}>
+      <Text
+        style={[styles.content, { color: isDark ? '#f2f2f2' : '#111' }]}
+        numberOfLines={1}
+      >
         {preview}
       </Text>
       <View style={styles.meta}>
         {memo.isPinned ? (
-          <Text testID="pin-icon" style={styles.pin}>
+          <Text
+            testID="pin-icon"
+            style={[styles.pin, { color: isDark ? '#aaa' : '#666' }]}
+          >
             固定
           </Text>
         ) : null}
-        <Text style={styles.time}>{formatTimestamp(memo.updatedAt)}</Text>
+        <Text style={[styles.time, { color: isDark ? '#9a9a9a' : '#777' }]}>
+          {formatTimestamp(memo.updatedAt)}
+        </Text>
       </View>
     </TouchableOpacity>
   )
@@ -62,7 +74,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   content: {
-    color: '#111',
     flex: 1,
     fontSize: 15,
   },

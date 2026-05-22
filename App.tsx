@@ -39,6 +39,7 @@ export default function App() {
   const [showNotifyPicker, setShowNotifyPicker] = useState(false)
   const [searchResults, setSearchResults] = useState<Memo[]>([])
   const insertRef = useRef<((text: string) => void) | null>(null)
+  const focusInputRef = useRef<(() => void) | null>(null)
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const creatingMemoRef = useRef(false)
   const latestInputContentRef = useRef('')
@@ -284,6 +285,8 @@ export default function App() {
           onBlur={handleBlur}
           autoFocus={true}
           insertRef={insertRef}
+          focusRef={focusInputRef}
+          isDark={isDark}
         />
 
         {isEditing ? (
@@ -307,22 +310,32 @@ export default function App() {
           </View>
         ) : null}
 
-        <SearchBar value={uiState.searchQuery} onChange={handleSearch} />
+        <SearchBar
+          value={uiState.searchQuery}
+          onChange={handleSearch}
+          isDark={isDark}
+        />
         <MemoList
           pinnedMemos={displayedPinned}
           regularMemos={displayedRegular}
           onSelectMemo={handleSelectMemo}
+          isDark={isDark}
         />
 
         <TouchableOpacity
           accessibilityRole="button"
           style={styles.fab}
+          accessibilityLabel="新規メモ"
           onPress={() => {
             setInputContent('')
             setUiState((state) => ({ ...state, editingMemoId: null }))
+            requestAnimationFrame(() => {
+              focusInputRef.current?.()
+            })
           }}
         >
-          <Text style={styles.fabLabel}>+</Text>
+          <Text style={styles.fabPlus}>＋</Text>
+          <Text style={styles.fabText}>新規</Text>
         </TouchableOpacity>
 
         <KeyboardToolbar
@@ -331,6 +344,7 @@ export default function App() {
             setUiState((state) => ({ ...state, isListening: true }))
             voice.startListening()
           }}
+          isDark={isDark}
         />
 
         <VoiceInput
@@ -342,8 +356,14 @@ export default function App() {
         />
 
         {showSettings ? (
-          <View style={styles.settingsOverlay}>
+          <View
+            style={[
+              styles.settingsOverlay,
+              { backgroundColor: theme.background },
+            ]}
+          >
             <SettingsScreen
+              isDark={isDark}
               onClose={() => {
                 setShowSettings(false)
                 loadMemos()
@@ -383,10 +403,12 @@ const styles = StyleSheet.create({
   fab: {
     alignItems: 'center',
     backgroundColor: '#007AFF',
-    borderRadius: 26,
+    borderRadius: 22,
     bottom: 80,
     elevation: 4,
-    height: 52,
+    flexDirection: 'row',
+    gap: 4,
+    height: 44,
     justifyContent: 'center',
     position: 'absolute',
     right: 20,
@@ -394,12 +416,17 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
-    width: 52,
+    paddingHorizontal: 14,
   },
-  fabLabel: {
+  fabPlus: {
     color: '#fff',
-    fontSize: 28,
-    lineHeight: 32,
+    fontSize: 18,
+    lineHeight: 20,
+  },
+  fabText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
   },
   header: {
     alignItems: 'center',

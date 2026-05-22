@@ -5,6 +5,7 @@ interface CalcLineProps {
   result: string | null
   isCollapsed: boolean
   onToggle: () => void
+  isDark?: boolean
 }
 
 export function CalcLine({
@@ -12,9 +13,14 @@ export function CalcLine({
   result,
   isCollapsed,
   onToggle,
+  isDark = false,
 }: CalcLineProps) {
   if (!result) {
-    return <Text style={styles.plainLine}>{line}</Text>
+    return (
+      <Text style={[styles.plainLine, { color: isDark ? '#f2f2f2' : '#111' }]}>
+        {line}
+      </Text>
+    )
   }
 
   if (isCollapsed) {
@@ -27,7 +33,9 @@ export function CalcLine({
 
   return (
     <View style={styles.row}>
-      <Text style={styles.expression}>{line}</Text>
+      <Text style={[styles.expression, { color: isDark ? '#f2f2f2' : '#111' }]}>
+        {line}
+      </Text>
       <TouchableOpacity onPress={onToggle}>
         <Text style={styles.result}>{result}</Text>
       </TouchableOpacity>
