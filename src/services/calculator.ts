@@ -3,13 +3,13 @@ import { evaluate } from 'mathjs'
 const CALCULABLE_LINE_PATTERN = /\d.*[+\-*/()]|[+\-*/()].*\d/
 
 export function isCalculableLine(line: string): boolean {
-  const expression = stripResult(line).trim()
+  const expression = getExpression(line)
 
   return expression !== '' && CALCULABLE_LINE_PATTERN.test(expression)
 }
 
 export function evaluateLine(line: string): string | null {
-  const expression = stripResult(line).trim()
+  const expression = getExpression(line)
 
   if (!isCalculableLine(expression)) return null
 
@@ -28,4 +28,22 @@ export function evaluateLine(line: string): string | null {
 
 function stripResult(line: string): string {
   return line.split('=')[0]
+}
+
+function getExpression(line: string): string {
+  const expression = stripResult(line).trim()
+  const labelSeparator = expression.match(/[:：]/)
+
+  if (!labelSeparator?.index) return expression
+
+  const label = expression.slice(0, labelSeparator.index).trim()
+  const value = expression.slice(labelSeparator.index + 1).trim()
+
+  if (label && isCalculableExpression(value)) return value
+
+  return expression
+}
+
+function isCalculableExpression(expression: string): boolean {
+  return expression !== '' && CALCULABLE_LINE_PATTERN.test(expression)
 }

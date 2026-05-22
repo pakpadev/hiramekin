@@ -1,4 +1,4 @@
-import { formatTime, formatToday } from '@/utils/dateTime'
+import { formatDateTime, formatTime, formatToday } from '@/utils/dateTime'
 
 describe('formatToday', () => {
   it('YYYY/MM/DD formatで返す', () => {
@@ -19,5 +19,13 @@ describe('formatTime', () => {
     const result = formatTime(new Date('2026-05-21T09:05:00'))
 
     expect(result).toBe('09:05')
+  })
+})
+
+describe('formatDateTime', () => {
+  it('YYYY/MM/DD HH:MM formatで返す', () => {
+    const result = formatDateTime(new Date('2026-05-21T09:05:00'))
+
+    expect(result).toBe('2026/05/21 09:05')
   })
 })

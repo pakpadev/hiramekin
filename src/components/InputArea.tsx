@@ -60,7 +60,7 @@ export function InputArea({
         value={content}
         onChangeText={onChange}
         onBlur={onBlur}
-        placeholder="メモを書く"
+        placeholder="メモを書く　　100+200 で計算できます"
         placeholderTextColor={isDark ? '#777' : '#aaa'}
         onSelectionChange={(event) => {
           selectionRef.current = event.nativeEvent.selection

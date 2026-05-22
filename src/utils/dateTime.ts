@@ -11,3 +11,7 @@ export function formatToday(date: Date = new Date()): string {
 export function formatTime(date: Date = new Date()): string {
   return `${pad(date.getHours())}:${pad(date.getMinutes())}`
 }
+
+export function formatDateTime(date: Date = new Date()): string {
+  return `${formatToday(date)} ${formatTime(date)}`
+}

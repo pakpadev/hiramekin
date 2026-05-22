@@ -16,6 +16,21 @@ describe('InputArea', () => {
     expect(screen.getByDisplayValue('テストテキスト')).toBeTruthy()
   })
 
+  it('空の入力欄に計算機能のヒントを表示する', () => {
+    render(
+      <InputArea
+        content=""
+        onChange={jest.fn()}
+        onBlur={jest.fn()}
+        autoFocus={false}
+      />,
+    )
+
+    expect(
+      screen.getByPlaceholderText('メモを書く　　100+200 で計算できます'),
+    ).toBeTruthy()
+  })
+
   it('テキスト変更で onChange が呼ばれる', () => {
     const onChange = jest.fn()
     render(
