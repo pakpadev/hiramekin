@@ -53,7 +53,10 @@ export function SettingsScreen({ onClose }: SettingsScreenProps) {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => setShowArchive(false)}>
+          <TouchableOpacity
+            accessibilityRole="button"
+            onPress={() => setShowArchive(false)}
+          >
             <Text style={styles.back}>戻る</Text>
           </TouchableOpacity>
           <Text style={styles.title}>アーカイブ</Text>
@@ -67,10 +70,14 @@ export function SettingsScreen({ onClose }: SettingsScreenProps) {
                 {item.content}
               </Text>
               <View style={styles.archiveActions}>
-                <TouchableOpacity onPress={() => handleRestore(item.id)}>
+                <TouchableOpacity
+                  accessibilityRole="button"
+                  onPress={() => handleRestore(item.id)}
+                >
                   <Text style={styles.restoreButton}>復元</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
+                  accessibilityRole="button"
                   onLongPress={() => handleDeletePermanently(item.id)}
                 >
                   <Text style={styles.deleteButton}>長押しで削除</Text>
@@ -89,12 +96,13 @@ export function SettingsScreen({ onClose }: SettingsScreenProps) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={onClose}>
+        <TouchableOpacity accessibilityRole="button" onPress={onClose}>
           <Text style={styles.back}>閉じる</Text>
         </TouchableOpacity>
         <Text style={styles.title}>設定</Text>
       </View>
       <TouchableOpacity
+        accessibilityRole="button"
         style={styles.menuItem}
         onPress={() => setShowArchive(true)}
       >

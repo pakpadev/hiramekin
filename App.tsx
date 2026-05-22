@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   Keyboard,
   KeyboardAvoidingView,
-  Modal,
   Platform,
   SafeAreaView,
   StyleSheet,
@@ -41,6 +40,8 @@ export default function App() {
   const [searchResults, setSearchResults] = useState<Memo[]>([])
   const insertRef = useRef<((text: string) => void) | null>(null)
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const creatingMemoRef = useRef(false)
+  const latestInputContentRef = useRef('')
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
 
@@ -121,18 +122,40 @@ export default function App() {
   const handleInputChange = useCallback(
     async (text: string) => {
       setInputContent(text)
+      latestInputContentRef.current = text
 
       if (uiState.editingMemoId) {
         scheduleSave(uiState.editingMemoId, text)
         return
       }
 
-      if (inputContent.length === 0 && text.length > 0) {
-        const id = await createMemo(text)
-        setUiState((state) => ({ ...state, editingMemoId: id }))
+      if (
+        inputContent.length === 0 &&
+        text.length > 0 &&
+        !creatingMemoRef.current
+      ) {
+        creatingMemoRef.current = true
+        try {
+          const id = await createMemo(text)
+          const latestContent = latestInputContentRef.current
+
+          if (latestContent.trim() && latestContent !== text) {
+            await updateMemo(id, latestContent)
+          }
+
+          setUiState((state) => ({ ...state, editingMemoId: id }))
+        } finally {
+          creatingMemoRef.current = false
+        }
       }
     },
-    [createMemo, inputContent.length, scheduleSave, uiState.editingMemoId],
+    [
+      createMemo,
+      inputContent.length,
+      scheduleSave,
+      uiState.editingMemoId,
+      updateMemo,
+    ],
   )
 
   const handleBlur = useCallback(async () => {
@@ -247,7 +270,10 @@ export default function App() {
       >
         <View style={[styles.header, { borderBottomColor: theme.border }]}>
           <Text style={[styles.logo, { color: theme.text }]}>閃筋</Text>
-          <TouchableOpacity onPress={() => setShowSettings(true)}>
+          <TouchableOpacity
+            accessibilityRole="button"
+            onPress={() => setShowSettings(true)}
+          >
             <Text style={styles.settingsButton}>設定</Text>
           </TouchableOpacity>
         </View>
@@ -262,15 +288,18 @@ export default function App() {
 
         {isEditing ? (
           <View style={styles.actionBar}>
-            <TouchableOpacity onPress={handlePin}>
+            <TouchableOpacity accessibilityRole="button" onPress={handlePin}>
               <Text style={styles.action}>ピン</Text>
             </TouchableOpacity>
             {detectedDate ? (
-              <TouchableOpacity onPress={() => setShowNotifyPicker(true)}>
+              <TouchableOpacity
+                accessibilityRole="button"
+                onPress={() => setShowNotifyPicker(true)}
+              >
                 <Text style={styles.action}>通知</Text>
               </TouchableOpacity>
             ) : null}
-            <TouchableOpacity onPress={handleArchive}>
+            <TouchableOpacity accessibilityRole="button" onPress={handleArchive}>
               <Text style={[styles.action, styles.archiveAction]}>
                 アーカイブ
               </Text>
@@ -286,6 +315,7 @@ export default function App() {
         />
 
         <TouchableOpacity
+          accessibilityRole="button"
           style={styles.fab}
           onPress={() => {
             setInputContent('')
@@ -311,14 +341,16 @@ export default function App() {
           }}
         />
 
-        <Modal visible={showSettings} animationType="slide">
-          <SettingsScreen
-            onClose={() => {
-              setShowSettings(false)
-              loadMemos()
-            }}
-          />
-        </Modal>
+        {showSettings ? (
+          <View style={styles.settingsOverlay}>
+            <SettingsScreen
+              onClose={() => {
+                setShowSettings(false)
+                loadMemos()
+              }}
+            />
+          </View>
+        ) : null}
 
         <NotifyPicker
           visible={showNotifyPicker}
@@ -387,5 +419,11 @@ const styles = StyleSheet.create({
   settingsButton: {
     color: '#007AFF',
     fontSize: 14,
+  },
+  settingsOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#fff',
+    elevation: 10,
+    zIndex: 10,
   },
 })

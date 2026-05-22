@@ -34,6 +34,7 @@ export function NotifyPicker({
           <Text style={styles.title}>通知タイミング</Text>
           {OPTIONS.map((option) => (
             <TouchableOpacity
+              accessibilityRole="button"
               key={option.value}
               style={styles.option}
               onPress={() => onSelect(option.value)}
@@ -43,6 +44,7 @@ export function NotifyPicker({
           ))}
           {hasExisting ? (
             <TouchableOpacity
+              accessibilityRole="button"
               style={[styles.option, styles.cancelOption]}
               onPress={() => onSelect(null)}
             >

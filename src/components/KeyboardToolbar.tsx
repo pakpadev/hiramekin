@@ -10,18 +10,21 @@ export function KeyboardToolbar({ onInsert, onMic }: KeyboardToolbarProps) {
   return (
     <View style={styles.container}>
       <TouchableOpacity
+        accessibilityRole="button"
         style={styles.button}
         onPress={() => onInsert(formatToday())}
       >
         <Text style={styles.label}>今日</Text>
       </TouchableOpacity>
       <TouchableOpacity
+        accessibilityRole="button"
         style={styles.button}
         onPress={() => onInsert(formatTime())}
       >
         <Text style={styles.label}>時刻</Text>
       </TouchableOpacity>
       <TouchableOpacity
+        accessibilityRole="button"
         testID="mic-button"
         style={styles.button}
         onPress={onMic}

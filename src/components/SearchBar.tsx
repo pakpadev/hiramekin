@@ -1,4 +1,11 @@
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native'
 
 interface SearchBarProps {
   value: string
@@ -9,7 +16,7 @@ export function SearchBar({ value, onChange }: SearchBarProps) {
   return (
     <View style={styles.container}>
       <TextInput
-        style={styles.input}
+        style={[styles.input, webInputStyle]}
         value={value}
         onChangeText={onChange}
         placeholder="検索"
@@ -18,6 +25,7 @@ export function SearchBar({ value, onChange }: SearchBarProps) {
       />
       {value.length > 0 ? (
         <TouchableOpacity
+          accessibilityRole="button"
           accessibilityLabel="検索をクリア"
           testID="clear-button"
           onPress={() => onChange('')}
@@ -48,5 +56,13 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 15,
+  },
+})
+
+const webInputStyle = Platform.select({
+  web: {
+    outlineColor: 'transparent',
+    outlineStyle: 'solid' as const,
+    outlineWidth: 0,
   },
 })

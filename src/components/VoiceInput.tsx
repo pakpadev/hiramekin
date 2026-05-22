@@ -11,7 +11,11 @@ export function VoiceInput({ visible, onCancel }: VoiceInputProps) {
       <View style={styles.overlay}>
         <View style={styles.panel}>
           <Text style={styles.title}>聞いています...</Text>
-          <TouchableOpacity style={styles.cancelButton} onPress={onCancel}>
+          <TouchableOpacity
+            accessibilityRole="button"
+            style={styles.cancelButton}
+            onPress={onCancel}
+          >
             <Text style={styles.cancelLabel}>キャンセル</Text>
           </TouchableOpacity>
         </View>
