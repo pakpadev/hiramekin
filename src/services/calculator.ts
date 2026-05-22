@@ -1,18 +1,19 @@
 import { evaluate } from 'mathjs'
 
 const CALCULABLE_LINE_PATTERN = /\d.*[+\-*/()]|[+\-*/()].*\d/
+const SAFE_EXPRESSION_PATTERN = /^[\d+\-*/().\s]+$/
 const FULL_WIDTH_NUMBER_START = '０'.charCodeAt(0)
 
 export function isCalculableLine(line: string): boolean {
   const expression = getExpression(line)
 
-  return expression !== '' && CALCULABLE_LINE_PATTERN.test(expression)
+  return isCalculableExpression(expression)
 }
 
 export function evaluateLine(line: string): string | null {
   const expression = getExpression(line)
 
-  if (!isCalculableLine(expression)) return null
+  if (!isCalculableExpression(expression)) return null
 
   try {
     const result = evaluate(expression)
@@ -46,7 +47,11 @@ function getExpression(line: string): string {
 }
 
 function isCalculableExpression(expression: string): boolean {
-  return expression !== '' && CALCULABLE_LINE_PATTERN.test(expression)
+  return (
+    expression !== '' &&
+    SAFE_EXPRESSION_PATTERN.test(expression) &&
+    CALCULABLE_LINE_PATTERN.test(expression)
+  )
 }
 
 function normalizeExpression(expression: string): string {

@@ -43,6 +43,8 @@ describe('evaluateLine', () => {
   it('不正な数式はnullを返す', () => {
     expect(evaluateLine('100 +')).toBeNull()
     expect(evaluateLine('abc + def')).toBeNull()
+    expect(evaluateLine('sqrt(4)')).toBeNull()
+    expect(evaluateLine('100 + 200; 1 + 1')).toBeNull()
   })
 
   it('= 以降を無視して計算する', () => {
