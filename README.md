@@ -55,6 +55,21 @@ The APK is generated at:
 android/app/build/outputs/apk/debug/app-debug.apk
 ```
 
+Build a local release APK for sideload distribution:
+
+```bash
+docker compose exec app bash -lc "cd android && ./gradlew assembleRelease --no-daemon --max-workers=1"
+```
+
+The release APK is generated at:
+
+```text
+android/app/build/outputs/apk/release/app-release.apk
+```
+
+This local release APK is signed with the debug signing config and is intended
+only for v1 smoke testing and direct sideload distribution, not store release.
+
 Check connected Android devices:
 
 ```bash
