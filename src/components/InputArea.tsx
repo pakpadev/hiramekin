@@ -1,7 +1,9 @@
 import { MutableRefObject, useMemo, useRef } from 'react'
 import { Platform, StyleSheet, TextInput, View } from 'react-native'
 import { useCalc } from '@/hooks/useCalc'
+import { getTheme } from '@/theme'
 import { CalcLine } from './CalcLine'
+import { ShimmerBorder } from './ShimmerBorder'
 
 interface InputAreaProps {
   content: string
@@ -27,6 +29,7 @@ export function InputArea({
   const lines = useMemo(() => content.split('\n'), [content])
   const { getLineResult, toggleCollapse, isCollapsed } = useCalc(content)
   const hasCalculations = lines.some((_, index) => getLineResult(index))
+  const theme = getTheme(isDark)
 
   if (insertRef) {
     insertRef.current = (text: string) => {
@@ -46,50 +49,48 @@ export function InputArea({
   }
 
   return (
-    <View style={styles.container}>
-      <TextInput
-        ref={inputRef}
-        testID="memo-input"
-        style={[
-          styles.input,
-          {
-            color: isDark ? '#f7f7f7' : '#111',
-          },
-          webInputStyle,
-        ]}
-        value={content}
-        onChangeText={onChange}
-        onBlur={onBlur}
-        placeholder="メモを書く　　100+200 で計算できます"
-        placeholderTextColor={isDark ? '#777' : '#aaa'}
-        onSelectionChange={(event) => {
-          selectionRef.current = event.nativeEvent.selection
-        }}
-        multiline
-        autoFocus={autoFocus}
-        textAlignVertical="top"
-        scrollEnabled={false}
-      />
-      {hasCalculations ? (
-        <View testID="calc-lines" style={styles.calcLines}>
-          {lines.map((line, index) => {
-            const result = getLineResult(index)
+    <View style={styles.wrapper}>
+      <ShimmerBorder isDark={isDark} borderRadius={10}>
+        <View style={styles.innerPad}>
+          <TextInput
+            ref={inputRef}
+            testID="memo-input"
+            style={[styles.input, { color: theme.textPrimary }, webInputStyle]}
+            value={content}
+            onChangeText={onChange}
+            onBlur={onBlur}
+            placeholder="メモを書く　　100+200 で計算できます"
+            placeholderTextColor={theme.textMuted}
+            onSelectionChange={(event) => {
+              selectionRef.current = event.nativeEvent.selection
+            }}
+            multiline
+            autoFocus={autoFocus}
+            textAlignVertical="top"
+            scrollEnabled={false}
+          />
+          {hasCalculations ? (
+            <View testID="calc-lines" style={styles.calcLines}>
+              {lines.map((line, index) => {
+                const result = getLineResult(index)
 
-            if (!result) return null
+                if (!result) return null
 
-            return (
-              <CalcLine
-                key={`${index}-${line}`}
-                line={line}
-                result={result}
-                isCollapsed={isCollapsed(index)}
-                onToggle={() => toggleCollapse(index)}
-                isDark={isDark}
-              />
-            )
-          })}
+                return (
+                  <CalcLine
+                    key={`${index}-${line}`}
+                    line={line}
+                    result={result}
+                    isCollapsed={isCollapsed(index)}
+                    onToggle={() => toggleCollapse(index)}
+                    isDark={isDark}
+                  />
+                )
+              })}
+            </View>
+          ) : null}
         </View>
-      ) : null}
+      </ShimmerBorder>
     </View>
   )
 }
@@ -99,7 +100,7 @@ const styles = StyleSheet.create({
     gap: 2,
     marginTop: 6,
   },
-  container: {
+  innerPad: {
     padding: 12,
   },
   input: {
@@ -109,6 +110,10 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     minHeight: 40,
     padding: 0,
+  },
+  wrapper: {
+    marginHorizontal: 12,
+    marginTop: 8,
   },
 })
 

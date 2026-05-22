@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
+import { getTheme } from '@/theme'
 import { formatDateTime, formatTime, formatToday } from '@/utils/dateTime'
 
 interface KeyboardToolbarProps {
@@ -20,11 +21,22 @@ export function KeyboardToolbar({
   isDark = false,
 }: KeyboardToolbarProps) {
   const [showTimeMenu, setShowTimeMenu] = useState(false)
+  const theme = getTheme(isDark)
   const buttonStyle = [
     styles.button,
-    { backgroundColor: isDark ? '#303030' : '#e0e0e0' },
+    { backgroundColor: theme.border, borderColor: 'transparent' },
   ]
-  const labelStyle = [styles.label, { color: isDark ? '#f2f2f2' : '#111' }]
+  const activeButtonStyle = [
+    styles.button,
+    {
+      backgroundColor: isDark
+        ? 'rgba(0,229,255,0.12)'
+        : 'rgba(0,172,193,0.12)',
+      borderColor: isDark ? 'rgba(0,229,255,0.3)' : 'rgba(0,172,193,0.3)',
+    },
+  ]
+  const labelStyle = [styles.label, { color: theme.textBody }]
+  const activeLabelStyle = [styles.label, { color: theme.accent }]
   const insertDateTime = () => {
     setShowTimeMenu(false)
     onInsert(formatDateTime())
@@ -66,8 +78,8 @@ export function KeyboardToolbar({
       style={[
         styles.container,
         {
-          backgroundColor: isDark ? '#181818' : '#f5f5f5',
-          borderTopColor: isDark ? '#303030' : '#ccc',
+          backgroundColor: theme.background,
+          borderTopColor: theme.border,
         },
       ]}
     >
@@ -76,8 +88,8 @@ export function KeyboardToolbar({
           style={[
             styles.timeMenu,
             {
-              backgroundColor: isDark ? '#242424' : '#fff',
-              borderColor: isDark ? '#3a3a3a' : '#d0d0d0',
+              backgroundColor: theme.surface,
+              borderColor: theme.border,
             },
           ]}
         >
@@ -105,11 +117,13 @@ export function KeyboardToolbar({
       >
         <TouchableOpacity
           accessibilityRole="button"
-          style={buttonStyle}
+          style={showTimeMenu ? activeButtonStyle : buttonStyle}
           onPress={insertDateTime}
           onLongPress={() => setShowTimeMenu((value) => !value)}
         >
-          <Text style={labelStyle}>タイム ▾</Text>
+          <Text style={showTimeMenu ? activeLabelStyle : labelStyle}>
+            タイム ▾
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
           accessibilityRole="button"
@@ -143,6 +157,7 @@ export function KeyboardToolbar({
 
 const styles = StyleSheet.create({
   button: {
+    borderWidth: StyleSheet.hairlineWidth,
     borderRadius: 6,
     paddingHorizontal: 14,
     paddingVertical: 6,

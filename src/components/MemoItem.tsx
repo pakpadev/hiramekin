@@ -1,44 +1,52 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { getTheme } from '@/theme'
 import type { Memo } from '@/types'
+import { ShimmerBorder } from './ShimmerBorder'
 
 interface MemoItemProps {
   memo: Memo
   onPress: (id: string) => void
   isDark?: boolean
+  index?: number
 }
 
-export function MemoItem({ memo, onPress, isDark = false }: MemoItemProps) {
+export function MemoItem({
+  memo,
+  onPress,
+  isDark = false,
+  index = 0,
+}: MemoItemProps) {
   const preview = memo.content.split('\n')[0] || ''
+  const theme = getTheme(isDark)
 
   return (
-    <TouchableOpacity
-      accessibilityRole="button"
-      style={[
-        styles.container,
-        { borderBottomColor: isDark ? '#303030' : '#ddd' },
-      ]}
-      onPress={() => onPress(memo.id)}
-    >
-      <Text
-        style={[styles.content, { color: isDark ? '#f2f2f2' : '#111' }]}
-        numberOfLines={1}
+    <ShimmerBorder isDark={isDark} index={index} borderRadius={8}>
+      <TouchableOpacity
+        accessibilityRole="button"
+        style={styles.container}
+        onPress={() => onPress(memo.id)}
       >
-        {preview}
-      </Text>
-      <View style={styles.meta}>
-        {memo.isPinned ? (
-          <Text
-            testID="pin-icon"
-            style={[styles.pin, { color: isDark ? '#aaa' : '#666' }]}
-          >
-            固定
-          </Text>
-        ) : null}
-        <Text style={[styles.time, { color: isDark ? '#9a9a9a' : '#777' }]}>
-          {formatTimestamp(memo.updatedAt)}
+        <Text
+          style={[styles.content, { color: theme.textBody }]}
+          numberOfLines={1}
+        >
+          {preview}
         </Text>
-      </View>
-    </TouchableOpacity>
+        <View style={styles.meta}>
+          {memo.isPinned ? (
+            <Text
+              testID="pin-icon"
+              style={[styles.pin, { color: theme.accent }]}
+            >
+              固定
+            </Text>
+          ) : null}
+          <Text style={[styles.time, { color: theme.textMuted }]}>
+            {formatTimestamp(memo.updatedAt)}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    </ShimmerBorder>
   )
 }
 
@@ -64,14 +72,12 @@ function pad(value: number): string {
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    borderBottomColor: '#ddd',
-    borderBottomWidth: StyleSheet.hairlineWidth,
     flexDirection: 'row',
     gap: 12,
     justifyContent: 'space-between',
-    minHeight: 48,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    minHeight: 44,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
   },
   content: {
     flex: 1,
@@ -83,11 +89,10 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   pin: {
-    color: '#666',
-    fontSize: 12,
+    fontSize: 11,
+    fontWeight: '600',
   },
   time: {
-    color: '#777',
     fontSize: 12,
   },
 })

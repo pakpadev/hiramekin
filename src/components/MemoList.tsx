@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, Text } from 'react-native'
+import { ScrollView, StyleSheet, Text, View } from 'react-native'
+import { getTheme } from '@/theme'
 import { MemoItem } from './MemoItem'
 import type { Memo } from '@/types'
 
@@ -15,40 +16,42 @@ export function MemoList({
   onSelectMemo,
   isDark = false,
 }: MemoListProps) {
+  const theme = getTheme(isDark)
   const isEmpty = pinnedMemos.length === 0 && regularMemos.length === 0
 
   return (
     <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
       {pinnedMemos.length > 0 ? (
         <>
-          <Text
-            style={[
-              styles.sectionHeader,
-              { color: isDark ? '#aaa' : '#777' },
-            ]}
-          >
+          <Text style={[styles.sectionHeader, { color: theme.textMuted }]}>
             ピン留め
           </Text>
-          {pinnedMemos.map((memo) => (
-            <MemoItem
-              key={memo.id}
-              memo={memo}
-              onPress={onSelectMemo}
-              isDark={isDark}
-            />
-          ))}
+          <View style={styles.cardList}>
+            {pinnedMemos.map((memo, index) => (
+              <MemoItem
+                key={memo.id}
+                memo={memo}
+                onPress={onSelectMemo}
+                isDark={isDark}
+                index={index}
+              />
+            ))}
+          </View>
         </>
       ) : null}
-      {regularMemos.map((memo) => (
-        <MemoItem
-          key={memo.id}
-          memo={memo}
-          onPress={onSelectMemo}
-          isDark={isDark}
-        />
-      ))}
+      <View style={styles.cardList}>
+        {regularMemos.map((memo, index) => (
+          <MemoItem
+            key={memo.id}
+            memo={memo}
+            onPress={onSelectMemo}
+            isDark={isDark}
+            index={pinnedMemos.length + index}
+          />
+        ))}
+      </View>
       {isEmpty ? (
-        <Text style={[styles.empty, { color: isDark ? '#888' : '#888' }]}>
+        <Text style={[styles.empty, { color: theme.textMuted }]}>
           メモはありません
         </Text>
       ) : null}
@@ -57,19 +60,23 @@ export function MemoList({
 }
 
 const styles = StyleSheet.create({
+  cardList: {
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+  },
   container: {
     flex: 1,
   },
   empty: {
-    color: '#888',
     fontSize: 14,
     padding: 24,
     textAlign: 'center',
   },
   sectionHeader: {
-    color: '#777',
     fontSize: 12,
     paddingHorizontal: 16,
-    paddingVertical: 6,
+    paddingBottom: 2,
+    paddingTop: 8,
   },
 })

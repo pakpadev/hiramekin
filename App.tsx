@@ -23,6 +23,7 @@ import { useMemos } from '@/hooks/useMemos'
 import { useNotifications } from '@/hooks/useNotifications'
 import { useVoice } from '@/hooks/useVoice'
 import { detectDate } from '@/services/notifications'
+import { getTheme } from '@/theme'
 import type { NotifyTiming } from '@/services/notifications'
 import { SettingsScreen } from '@/screens/SettingsScreen'
 import type { Memo, UIState } from '@/types'
@@ -256,11 +257,7 @@ export default function App() {
   const displayedRegular = isSearching
     ? searchResults.filter((memo) => !memo.isPinned)
     : regularMemos
-  const theme = {
-    background: isDark ? '#111' : '#fff',
-    border: isDark ? '#333' : '#eee',
-    text: isDark ? '#fff' : '#111',
-  }
+  const theme = getTheme(isDark)
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: theme.background }]}>
@@ -270,12 +267,14 @@ export default function App() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <View style={[styles.header, { borderBottomColor: theme.border }]}>
-          <Text style={[styles.logo, { color: theme.text }]}>閃筋</Text>
+          <Text style={[styles.logo, { color: theme.textPrimary }]}>閃筋</Text>
           <TouchableOpacity
             accessibilityRole="button"
             onPress={() => setShowSettings(true)}
           >
-            <Text style={styles.settingsButton}>設定</Text>
+            <Text style={[styles.settingsButton, { color: theme.accent }]}>
+              設定
+            </Text>
           </TouchableOpacity>
         </View>
 
@@ -292,18 +291,18 @@ export default function App() {
         {isEditing ? (
           <View style={styles.actionBar}>
             <TouchableOpacity accessibilityRole="button" onPress={handlePin}>
-              <Text style={styles.action}>ピン</Text>
+              <Text style={[styles.action, { color: theme.accent }]}>ピン</Text>
             </TouchableOpacity>
             {detectedDate ? (
               <TouchableOpacity
                 accessibilityRole="button"
                 onPress={() => setShowNotifyPicker(true)}
               >
-                <Text style={styles.action}>通知</Text>
+                <Text style={[styles.action, { color: theme.accent }]}>通知</Text>
               </TouchableOpacity>
             ) : null}
             <TouchableOpacity accessibilityRole="button" onPress={handleArchive}>
-              <Text style={[styles.action, styles.archiveAction]}>
+              <Text style={[styles.action, { color: theme.danger }]}>
                 アーカイブ
               </Text>
             </TouchableOpacity>
@@ -324,7 +323,10 @@ export default function App() {
 
         <TouchableOpacity
           accessibilityRole="button"
-          style={styles.fab}
+          style={[
+            styles.fab,
+            { backgroundColor: theme.accent, shadowColor: theme.accent },
+          ]}
           accessibilityLabel="新規メモ"
           onPress={() => {
             setInputContent('')
@@ -334,7 +336,7 @@ export default function App() {
             })
           }}
         >
-          <Text style={styles.fabPlus}>＋</Text>
+          <Text style={[styles.fabPlus, { color: '#000' }]}>＋</Text>
         </TouchableOpacity>
 
         <KeyboardToolbar
@@ -384,7 +386,6 @@ export default function App() {
 
 const styles = StyleSheet.create({
   action: {
-    color: '#007AFF',
     fontSize: 14,
   },
   actionBar: {
@@ -393,30 +394,24 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
     paddingHorizontal: 16,
   },
-  archiveAction: {
-    color: '#FF3B30',
-  },
   container: {
     flex: 1,
   },
   fab: {
     alignItems: 'center',
-    backgroundColor: '#007AFF',
     borderRadius: 26,
     bottom: 80,
-    elevation: 4,
+    elevation: 8,
     height: 52,
     justifyContent: 'center',
     position: 'absolute',
     right: 20,
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
     width: 52,
   },
   fabPlus: {
-    color: '#fff',
     fontSize: 28,
     lineHeight: 32,
   },
@@ -436,7 +431,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   settingsButton: {
-    color: '#007AFF',
     fontSize: 14,
   },
   settingsOverlay: {

@@ -1,43 +1,31 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Hiramekin Android APK Download</title>
+    <title>Hiramekin — ダウンロード</title>
     <meta
       name="description"
-      content="Hiramekin v1.0.1 beta の Android APK ダウンロードページ"
+      content="Hiramekin — Android 向けメモアプリの無料ダウンロード"
     />
     <link rel="icon" href="/icon.png" />
     <style>
       :root {
-        color-scheme: light dark;
-        --bg: #f7f5ef;
-        --surface: #ffffff;
-        --surface-soft: #ebe8df;
-        --text: #171717;
-        --muted: #66645e;
-        --line: #d9d4c8;
-        --primary: #007aff;
-        --primary-dark: #005fca;
-        --warn-bg: #fff4d8;
-        --warn-text: #5f4300;
-        --shadow: 0 18px 45px rgba(31, 28, 20, 0.12);
+        --bg: #111111;
+        --surface: #1a1a1a;
+        --text: #ffffff;
+        --body: #cccccc;
+        --muted: #555555;
+        --accent: #00e5ff;
+        --border: #2a2a2a;
       }
 
-      @media (prefers-color-scheme: dark) {
-        :root {
-          --bg: #111111;
-          --surface: #1d1d1d;
-          --surface-soft: #2a2a2a;
-          --text: #f4f4f4;
-          --muted: #b8b8b8;
-          --line: #333333;
-          --primary: #4da1ff;
-          --primary-dark: #7fbbff;
-          --warn-bg: #352a13;
-          --warn-text: #f0d18a;
-          --shadow: none;
+      @keyframes shimmer {
+        0% {
+          background-position: 100% 0;
+        }
+        100% {
+          background-position: -100% 0;
         }
       }
 
@@ -55,250 +43,169 @@
       }
 
       main {
-        width: min(920px, calc(100% - 32px));
+        width: min(560px, calc(100% - 32px));
         margin: 0 auto;
-        padding: 40px 0 56px;
+        padding: 56px 0 40px;
       }
 
       .hero {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        gap: 20px;
+        display: flex;
+        flex-direction: column;
         align-items: center;
-        padding: 28px 0 24px;
+        gap: 10px;
+        padding-bottom: 32px;
+        border-bottom: 1px solid var(--border);
+        text-align: center;
       }
 
       .app-icon {
         width: 88px;
         height: 88px;
         border-radius: 20px;
-        box-shadow: var(--shadow);
+        box-shadow: 0 0 32px rgba(0, 229, 255, 0.2);
       }
 
-      h1,
-      h2 {
+      .app-name {
         margin: 0;
-        line-height: 1.18;
-      }
-
-      h1 {
-        font-size: clamp(2rem, 7vw, 4.25rem);
+        font-size: 2rem;
         font-weight: 800;
         letter-spacing: 0;
       }
 
-      h2 {
-        margin-top: 34px;
-        font-size: 1.2rem;
-      }
-
-      p {
-        margin: 8px 0 0;
-      }
-
-      .lead {
-        color: var(--muted);
-        font-size: 1.04rem;
-      }
-
-      .download-panel {
-        margin-top: 18px;
-        padding: 24px;
-        background: var(--surface);
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        box-shadow: var(--shadow);
-      }
-
-      .actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-        align-items: center;
-      }
-
-      .download-button {
-        display: inline-flex;
-        min-height: 48px;
-        align-items: center;
-        justify-content: center;
-        padding: 0 20px;
-        border-radius: 8px;
-        background: var(--primary);
-        color: #ffffff;
-        font-weight: 700;
-        text-decoration: none;
-      }
-
-      .download-button:focus,
-      .download-button:hover {
-        background: var(--primary-dark);
-      }
-
-      .meta {
-        color: var(--muted);
-        font-size: 0.94rem;
-      }
-
-      .warning {
-        margin-top: 18px;
-        padding: 14px 16px;
-        border-radius: 8px;
-        background: var(--warn-bg);
-        color: var(--warn-text);
-        font-size: 0.95rem;
-      }
-
-      .info-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
-        margin-top: 18px;
-      }
-
-      .info {
-        padding: 12px 14px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: var(--surface-soft);
-      }
-
-      .label {
-        display: block;
-        color: var(--muted);
+      .version-tag {
+        display: inline-block;
+        border: 1px solid rgba(0, 229, 255, 0.25);
+        border-radius: 20px;
+        background: rgba(0, 229, 255, 0.1);
+        color: var(--accent);
         font-size: 0.82rem;
+        font-weight: 600;
+        padding: 3px 10px;
       }
 
-      .value {
-        display: block;
-        margin-top: 3px;
-        overflow-wrap: anywhere;
-        font-weight: 700;
-      }
-
-      ol {
-        padding-left: 1.4rem;
-      }
-
-      li + li {
+      .dl-wrap {
+        position: relative;
+        width: 100%;
+        max-width: 320px;
         margin-top: 8px;
+        padding: 2px;
+        border-radius: 10px;
+        background: linear-gradient(90deg, #111111, #00e5ff, #b2f0ff, #111111);
+        background-size: 300% 100%;
+        animation: shimmer 2.4s linear infinite;
       }
 
-      code {
-        padding: 2px 5px;
-        border-radius: 5px;
-        background: var(--surface-soft);
-        font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-        font-size: 0.9em;
+      .dl-btn {
+        display: block;
+        border-radius: 8px;
+        background: var(--accent);
+        color: #000000;
+        font-size: 1rem;
+        font-weight: 800;
+        padding: 14px;
+        text-align: center;
+        text-decoration: none;
+        transition: opacity 0.15s;
       }
 
-      .footer-link {
-        color: var(--primary);
+      .dl-btn:hover {
+        opacity: 0.88;
       }
 
-      @media (max-width: 640px) {
-        main {
-          width: min(100% - 24px, 920px);
-          padding-top: 24px;
-        }
+      .dl-meta,
+      footer {
+        color: var(--muted);
+        font-size: 0.8rem;
+      }
 
-        .hero {
-          grid-template-columns: 1fr;
-          gap: 14px;
-        }
+      .faq {
+        margin-top: 36px;
+      }
 
-        .app-icon {
-          width: 72px;
-          height: 72px;
-          border-radius: 16px;
-        }
+      .faq-title {
+        margin: 0 0 14px;
+        color: var(--muted);
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
 
-        .download-panel {
-          padding: 18px;
-        }
+      .faq-item {
+        padding: 14px 0;
+        border-bottom: 1px solid var(--border);
+      }
 
-        .download-button {
-          width: 100%;
-        }
+      .faq-item:first-of-type {
+        border-top: 1px solid var(--border);
+      }
 
-        .info-grid {
-          grid-template-columns: 1fr;
-        }
+      .faq-q {
+        margin: 0 0 6px;
+        color: var(--text);
+        font-size: 0.95rem;
+        font-weight: 600;
+      }
+
+      .faq-a {
+        margin: 0;
+        color: var(--body);
+        font-size: 0.88rem;
+      }
+
+      .faq-a strong {
+        color: var(--accent);
+      }
+
+      footer {
+        margin-top: 28px;
+        text-align: center;
       }
     </style>
   </head>
   <body>
     <main>
-      <section class="hero" aria-labelledby="title">
-        <img class="app-icon" src="/icon.png" alt="" />
-        <div>
-          <h1 id="title">Hiramekin</h1>
-          <p class="lead">
-            Android 向け v1.0.1 beta APK。最短でメモを開いて書き始めるための検証版です。
+      <section class="hero">
+        <img class="app-icon" src="/icon.png" alt="Hiramekin アイコン" />
+        <h1 class="app-name">Hiramekin</h1>
+        <span class="version-tag">v1.0.1 beta · Android</span>
+        <div class="dl-wrap">
+          <a
+            class="dl-btn"
+            href="https://github.com/pakpadev/hiramekin/releases/download/v1.0.1-beta/hiramekin-v1.0.1-beta.apk"
+          >
+            無料でダウンロード
+          </a>
+        </div>
+        <p class="dl-meta">56 MB · Android 6.0 以上</p>
+      </section>
+
+      <section class="faq" aria-label="よくある質問">
+        <p class="faq-title">よくある質問</p>
+
+        <div class="faq-item">
+          <p class="faq-q">「提供元不明」と出た — 大丈夫?</p>
+          <p class="faq-a">
+            Play Store 以外からインストールするアプリには<strong>必ず出る確認画面</strong>です。「この提供元を許可」または「許可」を選ぶと進められます。
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <p class="faq-q">インストールできない</p>
+          <p class="faq-a">
+            設定 → セキュリティ →「不明なアプリのインストール」でお使いのブラウザを許可してください。
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <p class="faq-q">Play Store にないの?</p>
+          <p class="faq-a">
+            現在ベータ版のため直接配布しています。正式版は Play Store での公開を予定しています。
           </p>
         </div>
       </section>
 
-      <section class="download-panel" aria-labelledby="download-title">
-        <h2 id="download-title">Android APK</h2>
-        <p class="meta">Google Play 未公開のため、Android 端末でこのページを開いてインストールしてください。</p>
-        <div class="actions" style="margin-top: 18px">
-          <a
-            class="download-button"
-            href="https://github.com/pakpadev/hiramekin/releases/download/v1.0.1-beta/hiramekin-v1.0.1-beta.apk"
-          >
-            APKをダウンロード
-          </a>
-          <span class="meta">v1.0.1 beta / 2026/05/22</span>
-        </div>
-        <div class="warning">
-          提供元不明のアプリとして警告が表示される場合があります。v1 の動作確認用配布であり、Play Store
-          版や自動更新にはまだ対応していません。
-        </div>
-
-        <div class="info-grid" aria-label="APK情報">
-          <div class="info">
-            <span class="label">ファイル名</span>
-            <span class="value">hiramekin-v1.0.1-beta.apk</span>
-          </div>
-          <div class="info">
-            <span class="label">サイズ</span>
-            <span class="value">56 MB</span>
-          </div>
-          <div class="info">
-            <span class="label">対象</span>
-            <span class="value">Android sideload</span>
-          </div>
-          <div class="info">
-            <span class="label">SHA-256</span>
-            <span class="value">EB00A7E277CFEE1A2D4A9A42579D92E62197B23CEB57E61E4EC79213777D2DE4</span>
-          </div>
-        </div>
-      </section>
-
-      <section aria-labelledby="install-title">
-        <h2 id="install-title">インストール手順</h2>
-        <ol>
-          <li>Android 端末でこのページを開き、APKをダウンロード ボタンを押します。</li>
-          <li>ダウンロードした APK を開きます。</li>
-          <li>警告が出た場合は、ブラウザからのインストールを一時的に許可します。</li>
-          <li>インストール後、Hiramekin を起動してメモ作成、検索、ピン、アーカイブを確認します。</li>
-        </ol>
-      </section>
-
-      <section aria-labelledby="support-title">
-        <h2 id="support-title">確認してほしいこと</h2>
-        <ol>
-          <li>起動直後に入力欄へすぐ書き始められること。</li>
-          <li><code>100+200</code> や <code>=100+200</code> の計算結果が表示されること。</li>
-          <li>マイクと通知の許可、音声入力、通知が実機で期待通り動くこと。</li>
-        </ol>
-        <p>
-          不具合や気づいた点は
-          <a class="footer-link" href="https://github.com/pakpadev/hiramekin/issues">GitHub Issues</a>
-          に記録してください。
-        </p>
-      </section>
+      <footer>v1.0.1 beta / build 2026-05-22</footer>
     </main>
   </body>
 </html>

@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
+import { getTheme } from '@/theme'
 
 interface SearchBarProps {
   value: string
@@ -14,19 +15,21 @@ interface SearchBarProps {
 }
 
 export function SearchBar({ value, onChange, isDark = false }: SearchBarProps) {
+  const theme = getTheme(isDark)
+
   return (
     <View
       style={[
         styles.container,
-        { backgroundColor: isDark ? '#242424' : '#f0f0f0' },
+        { backgroundColor: theme.surface, borderColor: theme.border },
       ]}
     >
       <TextInput
-        style={[styles.input, { color: isDark ? '#f7f7f7' : '#111' }, webInputStyle]}
+        style={[styles.input, { color: theme.textPrimary }, webInputStyle]}
         value={value}
         onChangeText={onChange}
         placeholder="検索"
-        placeholderTextColor={isDark ? '#777' : '#999'}
+        placeholderTextColor={theme.textMuted}
         returnKeyType="search"
       />
       {value.length > 0 ? (
@@ -36,9 +39,7 @@ export function SearchBar({ value, onChange, isDark = false }: SearchBarProps) {
           testID="clear-button"
           onPress={() => onChange('')}
         >
-          <Text style={[styles.clear, { color: isDark ? '#aaa' : '#888' }]}>
-            ×
-          </Text>
+          <Text style={[styles.clear, { color: theme.textMuted }]}>×</Text>
         </TouchableOpacity>
       ) : null}
     </View>
@@ -48,8 +49,8 @@ export function SearchBar({ value, onChange, isDark = false }: SearchBarProps) {
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    backgroundColor: '#f0f0f0',
     borderRadius: 8,
+    borderWidth: StyleSheet.hairlineWidth,
     flexDirection: 'row',
     marginHorizontal: 12,
     marginVertical: 6,

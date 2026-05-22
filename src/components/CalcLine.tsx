@@ -1,4 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { getTheme } from '@/theme'
 
 interface CalcLineProps {
   line: string
@@ -15,9 +16,11 @@ export function CalcLine({
   onToggle,
   isDark = false,
 }: CalcLineProps) {
+  const theme = getTheme(isDark)
+
   if (!result) {
     return (
-      <Text style={[styles.plainLine, { color: isDark ? '#f2f2f2' : '#111' }]}>
+      <Text style={[styles.plainLine, { color: theme.textBody }]}>
         {line}
       </Text>
     )
@@ -25,22 +28,45 @@ export function CalcLine({
 
   if (isCollapsed) {
     return (
-      <TouchableOpacity onPress={onToggle}>
-        <Text style={styles.collapsedResult}>{result}</Text>
+      <TouchableOpacity
+        style={[
+          styles.row,
+          {
+            backgroundColor: isDark
+              ? 'rgba(0,229,255,0.07)'
+              : 'rgba(0,172,193,0.08)',
+            borderLeftColor: theme.accent,
+          },
+        ]}
+        onPress={onToggle}
+      >
+        <Text style={[styles.collapsedResult, { color: theme.accent }]}>
+          {result}
+        </Text>
       </TouchableOpacity>
     )
   }
 
   return (
-    <View style={styles.row}>
+    <View
+      style={[
+        styles.row,
+        {
+          backgroundColor: isDark
+            ? 'rgba(0,229,255,0.07)'
+            : 'rgba(0,172,193,0.08)',
+          borderLeftColor: theme.accent,
+        },
+      ]}
+    >
       <Text
-        style={[styles.expression, { color: isDark ? '#f2f2f2' : '#111' }]}
+        style={[styles.expression, { color: theme.textBody }]}
         numberOfLines={1}
       >
         {line}
       </Text>
       <TouchableOpacity onPress={onToggle}>
-        <Text style={styles.result}>{result}</Text>
+        <Text style={[styles.result, { color: theme.accent }]}>{result}</Text>
       </TouchableOpacity>
     </View>
   )
@@ -48,7 +74,6 @@ export function CalcLine({
 
 const styles = StyleSheet.create({
   collapsedResult: {
-    color: '#007AFF',
     fontSize: 16,
     fontVariant: ['tabular-nums'],
     lineHeight: 24,
@@ -63,14 +88,17 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   result: {
-    color: '#007AFF',
     fontSize: 16,
     fontVariant: ['tabular-nums'],
     lineHeight: 24,
   },
   row: {
     alignItems: 'center',
+    borderLeftWidth: 2,
+    borderRadius: 6,
     flexDirection: 'row',
     gap: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
   },
 })
