@@ -35,7 +35,7 @@
 **Files:**
 - Modify: `package.json` (via npx expo install)
 
-- [ ] **Step 1: Install the package**
+- [x] **Step 1: Install the package**
 
 ```bash
 npx expo install expo-linear-gradient
@@ -43,7 +43,7 @@ npx expo install expo-linear-gradient
 
 Expected output includes `+ expo-linear-gradient@...` with no errors.
 
-- [ ] **Step 2: Verify types are available**
+- [x] **Step 2: Verify types are available**
 
 ```bash
 npx tsc --noEmit
@@ -51,7 +51,7 @@ npx tsc --noEmit
 
 Expected: no new errors. If `Cannot find module 'expo-linear-gradient'` appears, run `npm install` first.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add package.json package-lock.json
@@ -65,7 +65,7 @@ git commit -m "chore: add expo-linear-gradient"
 **Files:**
 - Create: `src/theme.ts`
 
-- [ ] **Step 1: Write the theme file**
+- [x] **Step 1: Write the theme file**
 
 ```typescript
 // src/theme.ts
@@ -110,7 +110,7 @@ export function getTheme(isDark: boolean): Theme {
 }
 ```
 
-- [ ] **Step 2: Verify TypeScript compiles**
+- [x] **Step 2: Verify TypeScript compiles**
 
 ```bash
 npx tsc --noEmit
@@ -118,7 +118,7 @@ npx tsc --noEmit
 
 Expected: no errors.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/theme.ts
@@ -134,7 +134,7 @@ git commit -m "feat: add dark/light theme tokens"
 
 The shimmer is implemented by placing an animated `LinearGradient` behind the content. The outer view has `padding: 1.5` and `overflow: 'hidden'`; the gradient is `position: absolute` and translates from left to right repeatedly. The inner content view sits on top with the surface colour, making only the 1.5px padding gap visible as the animated border.
 
-- [ ] **Step 1: Write the component**
+- [x] **Step 1: Write the component**
 
 ```tsx
 // src/components/ShimmerBorder.tsx
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
 })
 ```
 
-- [ ] **Step 2: Verify TypeScript compiles**
+- [x] **Step 2: Verify TypeScript compiles**
 
 ```bash
 npx tsc --noEmit
@@ -234,7 +234,7 @@ npx tsc --noEmit
 
 Expected: no errors.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/ShimmerBorder.tsx
@@ -250,7 +250,7 @@ git commit -m "feat: add ShimmerBorder animated gradient component"
 
 Remove the hardcoded `theme` object and replace with `getTheme()`. Update FAB to cyan. Update all `theme.background`, `theme.border`, `theme.text` references to the new token names. FAB text colour changes from `#fff` to `#000` (cyan background requires dark text for contrast).
 
-- [ ] **Step 1: Update imports**
+- [x] **Step 1: Update imports**
 
 At the top of `App.tsx`, add the theme import:
 
@@ -258,7 +258,7 @@ At the top of `App.tsx`, add the theme import:
 import { getTheme } from '@/theme'
 ```
 
-- [ ] **Step 2: Replace the theme object (lines 259–263)**
+- [x] **Step 2: Replace the theme object (lines 259–263)**
 
 Replace:
 ```tsx
@@ -274,7 +274,7 @@ With:
 const theme = getTheme(isDark)
 ```
 
-- [ ] **Step 3: Update JSX references to theme tokens**
+- [x] **Step 3: Update JSX references to theme tokens**
 
 Find and replace these four inline style usages in the JSX:
 
@@ -285,7 +285,7 @@ Find and replace these four inline style usages in the JSX:
 | `{ color: theme.text }` | `{ color: theme.textPrimary }` |
 | `{ backgroundColor: theme.background }` in settingsOverlay | `{ backgroundColor: theme.background }` (unchanged) |
 
-- [ ] **Step 4: Update StyleSheet for FAB and action colours**
+- [x] **Step 4: Update StyleSheet for FAB and action colours**
 
 In the `StyleSheet.create` at the bottom of `App.tsx`, the FAB and action colours are static. Move them to inline styles or update the static values as follows.
 
@@ -350,7 +350,7 @@ For the settings button in the header:
 
 Remove the hardcoded `color: '#007AFF'` from `settingsButton` in the stylesheet.
 
-- [ ] **Step 5: Verify the build**
+- [x] **Step 5: Verify the build**
 
 ```bash
 npx tsc --noEmit
@@ -358,7 +358,7 @@ npx tsc --noEmit
 
 Expected: no errors.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add App.tsx
@@ -374,7 +374,7 @@ git commit -m "feat: apply theme tokens to App.tsx, update FAB to cyan"
 
 Replace hardcoded `#007AFF` with the `accent` token from `getTheme`.
 
-- [ ] **Step 1: Update the component**
+- [x] **Step 1: Update the component**
 
 ```tsx
 // src/components/CalcLine.tsx
@@ -457,13 +457,13 @@ const styles = StyleSheet.create({
 })
 ```
 
-- [ ] **Step 2: Verify TypeScript**
+- [x] **Step 2: Verify TypeScript**
 
 ```bash
 npx tsc --noEmit
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/CalcLine.tsx
@@ -479,13 +479,13 @@ git commit -m "feat: apply cyan accent to CalcLine"
 
 Apply theme tokens. No visual change to the button shape; only colours change.
 
-- [ ] **Step 1: Add theme import**
+- [x] **Step 1: Add theme import**
 
 ```tsx
 import { getTheme } from '@/theme'
 ```
 
-- [ ] **Step 2: Replace colour derivations**
+- [x] **Step 2: Replace colour derivations**
 
 In the component body, replace:
 ```tsx
@@ -503,7 +503,7 @@ const buttonStyle = [styles.button, { backgroundColor: theme.border }]
 const labelStyle = [styles.label, { color: theme.textBody }]
 ```
 
-- [ ] **Step 3: Update container and time menu colours**
+- [x] **Step 3: Update container and time menu colours**
 
 Replace all inline colour expressions in the JSX:
 
@@ -519,13 +519,13 @@ Replace all inline colour expressions in the JSX:
 { backgroundColor: theme.surface, borderColor: theme.border }
 ```
 
-- [ ] **Step 4: Verify TypeScript**
+- [x] **Step 4: Verify TypeScript**
 
 ```bash
 npx tsc --noEmit
 ```
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/components/KeyboardToolbar.tsx
@@ -539,7 +539,7 @@ git commit -m "feat: apply theme tokens to KeyboardToolbar"
 **Files:**
 - Modify: `src/components/SearchBar.tsx`
 
-- [ ] **Step 1: Add theme import and replace colour derivations**
+- [x] **Step 1: Add theme import and replace colour derivations**
 
 ```tsx
 // src/components/SearchBar.tsx
@@ -618,13 +618,13 @@ const webInputStyle = Platform.select({
 })
 ```
 
-- [ ] **Step 2: Verify TypeScript**
+- [x] **Step 2: Verify TypeScript**
 
 ```bash
 npx tsc --noEmit
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/SearchBar.tsx
@@ -641,7 +641,7 @@ git commit -m "feat: apply theme tokens to SearchBar"
 
 MemoItem changes from a flat row with a bottom divider to a card wrapped in `ShimmerBorder`. A new optional `index` prop controls the shimmer delay.
 
-- [ ] **Step 1: Rewrite MemoItem**
+- [x] **Step 1: Rewrite MemoItem**
 
 ```tsx
 // src/components/MemoItem.tsx
@@ -737,7 +737,7 @@ const styles = StyleSheet.create({
 })
 ```
 
-- [ ] **Step 2: Update MemoList to pass index**
+- [x] **Step 2: Update MemoList to pass index**
 
 ```tsx
 // src/components/MemoList.tsx
@@ -825,13 +825,13 @@ const styles = StyleSheet.create({
 })
 ```
 
-- [ ] **Step 3: Verify TypeScript**
+- [x] **Step 3: Verify TypeScript**
 
 ```bash
 npx tsc --noEmit
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/components/MemoItem.tsx src/components/MemoList.tsx
@@ -847,7 +847,7 @@ git commit -m "feat: convert MemoItem to card style with ShimmerBorder"
 
 Wrap the `TextInput` in `ShimmerBorder`. The existing container `padding: 12` moves to the inside content view.
 
-- [ ] **Step 1: Update the component**
+- [x] **Step 1: Update the component**
 
 ```tsx
 // src/components/InputArea.tsx
@@ -979,13 +979,13 @@ const webInputStyle = Platform.select({
 })
 ```
 
-- [ ] **Step 2: Verify TypeScript**
+- [x] **Step 2: Verify TypeScript**
 
 ```bash
 npx tsc --noEmit
 ```
 
-- [ ] **Step 3: Run existing tests to confirm nothing broke**
+- [x] **Step 3: Run existing tests to confirm nothing broke**
 
 ```bash
 npx jest --testPathPattern="InputArea" --no-coverage
@@ -997,7 +997,7 @@ Expected: all pass. If snapshot tests fail, update snapshots:
 npx jest --testPathPattern="InputArea" --updateSnapshot
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/components/InputArea.tsx
@@ -1010,7 +1010,7 @@ git commit -m "feat: wrap InputArea in ShimmerBorder"
 
 **Files:** none — verification step
 
-- [ ] **Step 1: Run all tests**
+- [x] **Step 1: Run all tests**
 
 ```bash
 npx jest --no-coverage
@@ -1024,7 +1024,7 @@ npx jest --updateSnapshot
 
 Review each updated snapshot manually to confirm the change is intentional (colour values, not structural breakage).
 
-- [ ] **Step 2: Commit updated snapshots**
+- [x] **Step 2: Commit updated snapshots**
 
 ```bash
 git add __tests__
@@ -1041,7 +1041,7 @@ git commit -m "test: update snapshots for cyan theme"
 
 Full rewrite. Keeps the same monochrome + cyan palette. The shimmer animation on the download button uses a CSS `@keyframes` approach (no JavaScript needed). Removes all technical jargon: no APK, no sideload, no SHA-256, no GitHub Issues link.
 
-- [ ] **Step 1: Overwrite public/download.html**
+- [x] **Step 1: Overwrite public/download.html**
 
 ```html
 <!DOCTYPE html>
@@ -1242,13 +1242,13 @@ Full rewrite. Keeps the same monochrome + cyan palette. The shimmer animation on
 </html>
 ```
 
-- [ ] **Step 2: Copy to dist/**
+- [x] **Step 2: Copy to dist/**
 
 ```bash
 cp public/download.html dist/download.html
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add public/download.html dist/download.html
@@ -1277,3 +1277,12 @@ git commit -m "feat: rewrite download page with big button and FAQ for non-techn
 | useColorScheme preserved | `isDark` prop flows through all components unchanged |
 
 All spec requirements covered.
+
+## Implementation Result
+
+- Implemented in commit `b032c13` on `master`.
+- Pushed to `origin/master`.
+- Verified with `docker exec hiramekin-app npm run typecheck`.
+- Verified with `docker exec hiramekin-app npm test -- --no-coverage`.
+- Verified with `docker exec hiramekin-app npm run build:web`.
+- Captured Playwright screenshots for desktop/mobile download page and app light/dark views under `artifacts/`.
