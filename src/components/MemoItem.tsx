@@ -61,8 +61,8 @@ export function MemoItem({
             accessibilityLabel="コピー"
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <Text style={[styles.copyIcon, { color: copied ? theme.accent : theme.textMuted }]}>
-              {copied ? '✓' : '⎘'}
+            <Text style={[styles.copyIcon, { color: theme.accent }]}>
+              {copied ? '✓' : '⧉'}
             </Text>
           </TouchableOpacity>
         </View>
