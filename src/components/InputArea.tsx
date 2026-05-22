@@ -1,5 +1,5 @@
-import { MutableRefObject, useMemo, useRef } from 'react'
-import { Platform, StyleSheet, TextInput, View } from 'react-native'
+import { MutableRefObject, useMemo, useRef, useState } from 'react'
+import { NativeSyntheticEvent, Platform, StyleSheet, TextInput, TextInputContentSizeChangeEventData, View, useWindowDimensions } from 'react-native'
 import { useCalc } from '@/hooks/useCalc'
 import { getTheme } from '@/theme'
 import { CalcLine } from './CalcLine'
@@ -26,10 +26,19 @@ export function InputArea({
 }: InputAreaProps) {
   const inputRef = useRef<TextInput>(null)
   const selectionRef = useRef({ start: 0, end: 0 })
+  const [contentHeight, setContentHeight] = useState(0)
+  const { height: screenHeight } = useWindowDimensions()
   const lines = useMemo(() => content.split('\n'), [content])
   const { getLineResult, toggleCollapse, isCollapsed } = useCalc(content)
   const hasCalculations = lines.some((_, index) => getLineResult(index))
   const theme = getTheme(isDark)
+
+  const minInputHeight = 96 // 4 lines * lineHeight 24
+  const maxInputHeight = screenHeight * 0.5
+  const scrollEnabled = contentHeight > maxInputHeight
+  const inputHeight = scrollEnabled
+    ? maxInputHeight
+    : Math.max(contentHeight, minInputHeight)
 
   if (insertRef) {
     insertRef.current = (text: string) => {
@@ -55,7 +64,7 @@ export function InputArea({
           <TextInput
             ref={inputRef}
             testID="memo-input"
-            style={[styles.input, { color: theme.textPrimary }, webInputStyle]}
+            style={[styles.input, { color: theme.textPrimary, height: inputHeight }, webInputStyle]}
             value={content}
             onChangeText={onChange}
             onBlur={onBlur}
@@ -64,10 +73,11 @@ export function InputArea({
             onSelectionChange={(event) => {
               selectionRef.current = event.nativeEvent.selection
             }}
+            onContentSizeChange={(e: NativeSyntheticEvent<TextInputContentSizeChangeEventData>) => setContentHeight(e.nativeEvent.contentSize.height)}
             multiline
             autoFocus={autoFocus}
             textAlignVertical="top"
-            scrollEnabled={false}
+            scrollEnabled={scrollEnabled}
           />
           {hasCalculations ? (
             <View testID="calc-lines" style={styles.calcLines}>
@@ -108,7 +118,6 @@ const styles = StyleSheet.create({
     borderWidth: 0,
     fontSize: 16,
     lineHeight: 24,
-    minHeight: 40,
     padding: 0,
   },
   wrapper: {
