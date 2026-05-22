@@ -25,6 +25,7 @@ import { useVoice } from '@/hooks/useVoice'
 import { detectDate } from '@/services/notifications'
 import { getTheme } from '@/theme'
 import type { NotifyTiming } from '@/services/notifications'
+import { PwaInstallBanner } from '@/components/PwaInstallBanner'
 import { SettingsScreen } from '@/screens/SettingsScreen'
 import type { Memo, UIState } from '@/types'
 
@@ -262,6 +263,7 @@ export default function App() {
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: theme.background }]}>
       <StatusBar style={isDark ? 'light' : 'dark'} />
+      <PwaInstallBanner isDark={isDark} />
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

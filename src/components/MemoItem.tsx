@@ -1,4 +1,6 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { useRef, useState } from 'react'
+import { Animated, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import * as Clipboard from 'expo-clipboard'
 import { getTheme } from '@/theme'
 import type { Memo } from '@/types'
 
@@ -15,6 +17,18 @@ export function MemoItem({
 }: MemoItemProps) {
   const preview = memo.content.split('\n')[0] || ''
   const theme = getTheme(isDark)
+  const [copied, setCopied] = useState(false)
+  const fadeAnim = useRef(new Animated.Value(0)).current
+
+  async function handleCopy() {
+    await Clipboard.setStringAsync(memo.content)
+    setCopied(true)
+    Animated.sequence([
+      Animated.timing(fadeAnim, { toValue: 1, duration: 150, useNativeDriver: true }),
+      Animated.delay(800),
+      Animated.timing(fadeAnim, { toValue: 0, duration: 150, useNativeDriver: true }),
+    ]).start(() => setCopied(false))
+  }
 
   return (
     <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
@@ -41,6 +55,16 @@ export function MemoItem({
           <Text style={[styles.time, { color: theme.textMuted }]}>
             {formatTimestamp(memo.updatedAt)}
           </Text>
+          <TouchableOpacity
+            testID="copy-btn"
+            onPress={handleCopy}
+            accessibilityLabel="コピー"
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Text style={[styles.copyIcon, { color: copied ? theme.accent : theme.textMuted }]}>
+              {copied ? '✓' : '⎘'}
+            </Text>
+          </TouchableOpacity>
         </View>
       </TouchableOpacity>
     </View>
@@ -88,6 +112,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     gap: 6,
+  },
+  copyIcon: {
+    fontSize: 14,
   },
   pin: {
     fontSize: 11,

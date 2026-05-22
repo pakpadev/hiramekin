@@ -4,8 +4,8 @@
   "description": "一瞬のひらめきを最速で書き留めるメモアプリ",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#007AFF",
+  "background_color": "#111111",
+  "theme_color": "#00e5ff",
   "icons": [
     {
       "src": "/icon.png",
