@@ -335,7 +335,6 @@ export default function App() {
           }}
         >
           <Text style={styles.fabPlus}>＋</Text>
-          <Text style={styles.fabText}>新規</Text>
         </TouchableOpacity>
 
         <KeyboardToolbar
@@ -403,12 +402,10 @@ const styles = StyleSheet.create({
   fab: {
     alignItems: 'center',
     backgroundColor: '#007AFF',
-    borderRadius: 22,
+    borderRadius: 26,
     bottom: 80,
     elevation: 4,
-    flexDirection: 'row',
-    gap: 4,
-    height: 44,
+    height: 52,
     justifyContent: 'center',
     position: 'absolute',
     right: 20,
@@ -416,17 +413,12 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
-    paddingHorizontal: 14,
+    width: 52,
   },
   fabPlus: {
     color: '#fff',
-    fontSize: 18,
-    lineHeight: 20,
-  },
-  fabText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 28,
+    lineHeight: 32,
   },
   header: {
     alignItems: 'center',
