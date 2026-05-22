@@ -6,6 +6,8 @@ describe('isCalculableLine', () => {
     expect(isCalculableLine('1000 * 0.08')).toBe(true)
     expect(isCalculableLine('(100 + 200) * 3')).toBe(true)
     expect(isCalculableLine('合計: 100 + 200')).toBe(true)
+    expect(isCalculableLine('１００＋２００')).toBe(true)
+    expect(isCalculableLine('100×200')).toBe(true)
   })
 
   it('テキストのみの行をfalseにする', () => {
@@ -51,5 +53,12 @@ describe('evaluateLine', () => {
   it('ラベル付き数式を計算する', () => {
     expect(evaluateLine('合計: 100 + 200')).toBe('300')
     expect(evaluateLine('合計：100 + 200')).toBe('300')
+  })
+
+  it('日本語入力で入りやすい全角数字と演算子を計算する', () => {
+    expect(evaluateLine('１００＋２００')).toBe('300')
+    expect(evaluateLine('100×200')).toBe('20000')
+    expect(evaluateLine('100÷4')).toBe('25')
+    expect(evaluateLine('１００＋２００＝')).toBe('300')
   })
 })

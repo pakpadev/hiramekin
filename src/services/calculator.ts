@@ -1,6 +1,7 @@
 import { evaluate } from 'mathjs'
 
 const CALCULABLE_LINE_PATTERN = /\d.*[+\-*/()]|[+\-*/()].*\d/
+const FULL_WIDTH_NUMBER_START = '０'.charCodeAt(0)
 
 export function isCalculableLine(line: string): boolean {
   const expression = getExpression(line)
@@ -27,11 +28,11 @@ export function evaluateLine(line: string): string | null {
 }
 
 function stripResult(line: string): string {
-  return line.split('=')[0]
+  return line.split(/[=＝]/)[0]
 }
 
 function getExpression(line: string): string {
-  const expression = stripResult(line).trim()
+  const expression = normalizeExpression(stripResult(line)).trim()
   const labelSeparator = expression.match(/[:：]/)
 
   if (!labelSeparator?.index) return expression
@@ -46,4 +47,32 @@ function getExpression(line: string): string {
 
 function isCalculableExpression(expression: string): boolean {
   return expression !== '' && CALCULABLE_LINE_PATTERN.test(expression)
+}
+
+function normalizeExpression(expression: string): string {
+  return expression.replace(
+    /[０-９＋－ー−＊／（）．＝×÷]/g,
+    (character) => {
+      if (character >= '０' && character <= '９') {
+        return String(character.charCodeAt(0) - FULL_WIDTH_NUMBER_START)
+      }
+
+      const replacements: Record<string, string> = {
+        '＋': '+',
+        '－': '-',
+        'ー': '-',
+        '−': '-',
+        '＊': '*',
+        '／': '/',
+        '（': '(',
+        '）': ')',
+        '．': '.',
+        '＝': '=',
+        '×': '*',
+        '÷': '/',
+      }
+
+      return replacements[character] ?? character
+    },
+  )
 }
