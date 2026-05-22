@@ -1,4 +1,4 @@
-package com.hiramekininit
+package com.hiramekin.app
 
 import android.os.Build
 import android.os.Bundle

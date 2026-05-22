@@ -259,12 +259,14 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = org.name.hiramekininit;
-				PRODUCT_NAME = hiramekininit;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.hiramekin.app";
+				PRODUCT_NAME = "app";
 				SWIFT_OBJC_BRIDGING_HEADER = "hiramekininit/hiramekininit-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
+				TARGETED_DEVICE_FAMILY = "1";
+				CODE_SIGN_ENTITLEMENTS = hiramekininit/app.entitlements;
 			};
 			name = Debug;
 		};
@@ -286,11 +288,13 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = org.name.hiramekininit;
-				PRODUCT_NAME = hiramekininit;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.hiramekin.app";
+				PRODUCT_NAME = "app";
 				SWIFT_OBJC_BRIDGING_HEADER = "hiramekininit/hiramekininit-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
+				TARGETED_DEVICE_FAMILY = "1";
+				CODE_SIGN_ENTITLEMENTS = hiramekininit/app.entitlements;
 			};
 			name = Release;
 		};
