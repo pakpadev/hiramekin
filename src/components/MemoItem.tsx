@@ -1,26 +1,23 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { getTheme } from '@/theme'
 import type { Memo } from '@/types'
-import { ShimmerBorder } from './ShimmerBorder'
 
 interface MemoItemProps {
   memo: Memo
   onPress: (id: string) => void
   isDark?: boolean
-  index?: number
 }
 
 export function MemoItem({
   memo,
   onPress,
   isDark = false,
-  index = 0,
 }: MemoItemProps) {
   const preview = memo.content.split('\n')[0] || ''
   const theme = getTheme(isDark)
 
   return (
-    <ShimmerBorder isDark={isDark} index={index} borderRadius={8}>
+    <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
       <TouchableOpacity
         accessibilityRole="button"
         style={styles.container}
@@ -46,7 +43,7 @@ export function MemoItem({
           </Text>
         </View>
       </TouchableOpacity>
-    </ShimmerBorder>
+    </View>
   )
 }
 
@@ -70,6 +67,10 @@ function pad(value: number): string {
 }
 
 const styles = StyleSheet.create({
+  card: {
+    borderRadius: 8,
+    borderWidth: 1,
+  },
   container: {
     alignItems: 'center',
     flexDirection: 'row',

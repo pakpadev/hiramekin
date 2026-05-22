@@ -27,26 +27,24 @@ export function MemoList({
             ピン留め
           </Text>
           <View style={styles.cardList}>
-            {pinnedMemos.map((memo, index) => (
+            {pinnedMemos.map((memo) => (
               <MemoItem
                 key={memo.id}
                 memo={memo}
                 onPress={onSelectMemo}
                 isDark={isDark}
-                index={index}
               />
             ))}
           </View>
         </>
       ) : null}
       <View style={styles.cardList}>
-        {regularMemos.map((memo, index) => (
+        {regularMemos.map((memo) => (
           <MemoItem
             key={memo.id}
             memo={memo}
             onPress={onSelectMemo}
             isDark={isDark}
-            index={pinnedMemos.length + index}
           />
         ))}
       </View>
