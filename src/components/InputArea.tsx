@@ -1,5 +1,5 @@
 import { MutableRefObject, useMemo, useRef } from 'react'
-import { StyleSheet, TextInput, View } from 'react-native'
+import { Platform, StyleSheet, TextInput, View } from 'react-native'
 import { useCalc } from '@/hooks/useCalc'
 import { CalcLine } from './CalcLine'
 
@@ -40,10 +40,12 @@ export function InputArea({
       <TextInput
         ref={inputRef}
         testID="memo-input"
-        style={styles.input}
+        style={[styles.input, webInputStyle]}
         value={content}
         onChangeText={onChange}
         onBlur={onBlur}
+        placeholder="メモを書く"
+        placeholderTextColor="#aaa"
         onSelectionChange={(event) => {
           selectionRef.current = event.nativeEvent.selection
         }}
@@ -84,8 +86,19 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   input: {
+    backgroundColor: 'transparent',
+    borderWidth: 0,
     fontSize: 16,
     lineHeight: 24,
     minHeight: 40,
+    padding: 0,
+  },
+})
+
+const webInputStyle = Platform.select({
+  web: {
+    outlineColor: 'transparent',
+    outlineStyle: 'solid' as const,
+    outlineWidth: 0,
   },
 })
