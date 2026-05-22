@@ -39,6 +39,15 @@ Get-FileHash artifacts/releases/hiramekin-v1.0.0-beta.apk -Algorithm SHA256
 4. `https://github.com/pakpadev/hiramekin/releases/download/v1.0.0-beta/hiramekin-v1.0.0-beta.apk` が直接ダウンロードできることを確認する。
 5. `https://<site-host>/download.html` からAPKダウンロードできることを確認する。
 
+GitHub APIで作成する場合は、`GITHUB_TOKEN` を設定して次を実行する。
+
+```powershell
+$env:GITHUB_TOKEN = "<github-token>"
+.\scripts\publish-github-release.ps1
+```
+
+このスクリプトは既存Releaseがあれば再利用し、同名APKアセットがあれば置き換える。
+
 ## 注意事項
 
 - 現在の release APK は debug signing config で署名している。
