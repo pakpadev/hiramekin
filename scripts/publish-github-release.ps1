@@ -30,7 +30,8 @@ $repoSlug = "$Owner/$Repo"
 $releaseApi = "https://api.github.com/repos/$repoSlug/releases"
 $releaseByTagApi = "$releaseApi/tags/$Tag"
 
-$releaseNotes = [string](Get-Content -LiteralPath $ReleaseNotesPath -Raw -Encoding UTF8)
+$releaseNotesFile = Resolve-Path -LiteralPath $ReleaseNotesPath
+$releaseNotes = [System.IO.File]::ReadAllText($releaseNotesFile, [System.Text.Encoding]::UTF8)
 
 try {
   $release = Invoke-RestMethod -Method Get -Uri $releaseByTagApi -Headers $apiHeaders
@@ -40,7 +41,7 @@ try {
     throw
   }
 
-  $body = @{
+  $body = [ordered]@{
     tag_name         = $Tag
     target_commitish = "master"
     name             = "Hiramekin $Tag"
@@ -49,7 +50,9 @@ try {
     prerelease       = $true
   } | ConvertTo-Json
 
-  $release = Invoke-RestMethod -Method Post -Uri $releaseApi -Headers $apiHeaders -Body $body -ContentType "application/json; charset=utf-8"
+  $bodyBytes = [System.Text.Encoding]::UTF8.GetBytes($body)
+
+  $release = Invoke-RestMethod -Method Post -Uri $releaseApi -Headers $apiHeaders -Body $bodyBytes -ContentType "application/json; charset=utf-8"
   Write-Host "Created release: $($release.html_url)"
 }
 
@@ -61,7 +64,8 @@ if ($existingAsset) {
   Write-Host "Deleted existing asset: $assetName"
 }
 
-$uploadUrl = $release.upload_url -replace "\{\?name,label\}", "?name=$assetName"
+$encodedAssetName = [System.Uri]::EscapeDataString($assetName)
+$uploadUrl = $release.upload_url -replace "\{\?name,label\}", "?name=$encodedAssetName"
 $apkBytes = [System.IO.File]::ReadAllBytes((Resolve-Path -LiteralPath $ApkPath))
 
 Invoke-RestMethod `
