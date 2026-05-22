@@ -229,25 +229,23 @@ export default function App() {
     }
   }
 
-  const handlePin = async () => {
-    if (!uiState.editingMemoId) return
-
-    await togglePin(uiState.editingMemoId)
+  const handlePin = async (id: string) => {
+    await togglePin(id)
     await trigger('pin')
   }
 
-  const handleArchive = async () => {
-    if (!uiState.editingMemoId) return
+  const handleArchive = async (id: string) => {
+    const memo = allMemos.find((m) => m.id === id)
+    if (memo?.notifyAt) await cancelNotification(id)
 
-    if (currentMemo?.notifyAt) {
-      await cancelNotification(uiState.editingMemoId)
-    }
-
-    await archiveMemo(uiState.editingMemoId)
+    await archiveMemo(id)
     await trigger('archive')
-    setInputContent('')
-    setUiState((state) => ({ ...state, editingMemoId: null }))
-    Keyboard.dismiss()
+
+    if (uiState.editingMemoId === id) {
+      setInputContent('')
+      setUiState((state) => ({ ...state, editingMemoId: null }))
+      Keyboard.dismiss()
+    }
   }
 
   const isEditing = uiState.editingMemoId !== null || inputContent.length > 0
@@ -290,23 +288,13 @@ export default function App() {
           isDark={isDark}
         />
 
-        {isEditing ? (
+        {isEditing && detectedDate ? (
           <View style={styles.actionBar}>
-            <TouchableOpacity accessibilityRole="button" onPress={handlePin}>
-              <Text style={[styles.action, { color: theme.accent }]}>ピン</Text>
-            </TouchableOpacity>
-            {detectedDate ? (
-              <TouchableOpacity
-                accessibilityRole="button"
-                onPress={() => setShowNotifyPicker(true)}
-              >
-                <Text style={[styles.action, { color: theme.accent }]}>通知</Text>
-              </TouchableOpacity>
-            ) : null}
-            <TouchableOpacity accessibilityRole="button" onPress={handleArchive}>
-              <Text style={[styles.action, { color: theme.danger }]}>
-                アーカイブ
-              </Text>
+            <TouchableOpacity
+              accessibilityRole="button"
+              onPress={() => setShowNotifyPicker(true)}
+            >
+              <Text style={[styles.action, { color: theme.accent }]}>通知</Text>
             </TouchableOpacity>
           </View>
         ) : null}
@@ -320,6 +308,8 @@ export default function App() {
           pinnedMemos={displayedPinned}
           regularMemos={displayedRegular}
           onSelectMemo={handleSelectMemo}
+          onPinMemo={handlePin}
+          onArchiveMemo={handleArchive}
           isDark={isDark}
         />
 

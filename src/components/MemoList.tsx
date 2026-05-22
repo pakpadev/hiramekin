@@ -7,6 +7,8 @@ interface MemoListProps {
   pinnedMemos: Memo[]
   regularMemos: Memo[]
   onSelectMemo: (id: string) => void
+  onPinMemo: (id: string) => void
+  onArchiveMemo: (id: string) => void
   isDark?: boolean
 }
 
@@ -14,6 +16,8 @@ export function MemoList({
   pinnedMemos,
   regularMemos,
   onSelectMemo,
+  onPinMemo,
+  onArchiveMemo,
   isDark = false,
 }: MemoListProps) {
   const theme = getTheme(isDark)
@@ -32,6 +36,8 @@ export function MemoList({
                 key={memo.id}
                 memo={memo}
                 onPress={onSelectMemo}
+                onPin={onPinMemo}
+                onArchive={onArchiveMemo}
                 isDark={isDark}
               />
             ))}
@@ -44,6 +50,8 @@ export function MemoList({
             key={memo.id}
             memo={memo}
             onPress={onSelectMemo}
+            onPin={onPinMemo}
+            onArchive={onArchiveMemo}
             isDark={isDark}
           />
         ))}

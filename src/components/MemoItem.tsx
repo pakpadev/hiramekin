@@ -7,12 +7,16 @@ import type { Memo } from '@/types'
 interface MemoItemProps {
   memo: Memo
   onPress: (id: string) => void
+  onPin: (id: string) => void
+  onArchive: (id: string) => void
   isDark?: boolean
 }
 
 export function MemoItem({
   memo,
   onPress,
+  onPin,
+  onArchive,
   isDark = false,
 }: MemoItemProps) {
   const preview = memo.content.split('\n')[0] || ''
@@ -44,24 +48,36 @@ export function MemoItem({
           {preview}
         </Text>
         <View style={styles.meta}>
-          {memo.isPinned ? (
-            <Text
-              testID="pin-icon"
-              style={[styles.pin, { color: theme.accent }]}
-            >
-              固定
-            </Text>
-          ) : null}
           <Text style={[styles.time, { color: theme.textMuted }]}>
             {formatTimestamp(memo.updatedAt)}
           </Text>
+          <TouchableOpacity
+            testID="pin-btn"
+            onPress={() => onPin(memo.id)}
+            accessibilityLabel={memo.isPinned ? 'ピン解除' : 'ピン留め'}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Text style={[styles.actionIcon, { color: memo.isPinned ? theme.accent : theme.textMuted }]}>
+              ◆
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            testID="archive-btn"
+            onPress={() => onArchive(memo.id)}
+            accessibilityLabel="アーカイブ"
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Text style={[styles.actionIcon, { color: theme.textMuted }]}>
+              ↓
+            </Text>
+          </TouchableOpacity>
           <TouchableOpacity
             testID="copy-btn"
             onPress={handleCopy}
             accessibilityLabel="コピー"
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <Text style={[styles.copyIcon, { color: theme.accent }]}>
+            <Text style={[styles.actionIcon, { color: theme.accent }]}>
               {copied ? '✓' : '⧉'}
             </Text>
           </TouchableOpacity>
@@ -91,6 +107,9 @@ function pad(value: number): string {
 }
 
 const styles = StyleSheet.create({
+  actionIcon: {
+    fontSize: 14,
+  },
   card: {
     borderRadius: 8,
     borderWidth: 1,
@@ -112,13 +131,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     gap: 6,
-  },
-  copyIcon: {
-    fontSize: 14,
-  },
-  pin: {
-    fontSize: 11,
-    fontWeight: '600',
   },
   time: {
     fontSize: 12,
