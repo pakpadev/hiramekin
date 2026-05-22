@@ -1,6 +1,7 @@
-import { useRef, useState } from 'react'
-import { Animated, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { useEffect, useRef, useState } from 'react'
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import * as Clipboard from 'expo-clipboard'
+import { Ionicons } from '@expo/vector-icons'
 import { getTheme } from '@/theme'
 import type { Memo } from '@/types'
 
@@ -22,16 +23,19 @@ export function MemoItem({
   const preview = memo.content.split('\n')[0] || ''
   const theme = getTheme(isDark)
   const [copied, setCopied] = useState(false)
-  const fadeAnim = useRef(new Animated.Value(0)).current
+  const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current)
+    }
+  }, [])
 
   async function handleCopy() {
     await Clipboard.setStringAsync(memo.content)
     setCopied(true)
-    Animated.sequence([
-      Animated.timing(fadeAnim, { toValue: 1, duration: 150, useNativeDriver: true }),
-      Animated.delay(800),
-      Animated.timing(fadeAnim, { toValue: 0, duration: 150, useNativeDriver: true }),
-    ]).start(() => setCopied(false))
+    if (copyTimerRef.current) clearTimeout(copyTimerRef.current)
+    copyTimerRef.current = setTimeout(() => setCopied(false), 1100)
   }
 
   return (
@@ -57,9 +61,11 @@ export function MemoItem({
             accessibilityLabel={memo.isPinned ? 'ピン解除' : 'ピン留め'}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <Text style={[styles.actionIcon, { color: memo.isPinned ? theme.accent : theme.textMuted }]}>
-              ◆
-            </Text>
+            <Ionicons
+              name={memo.isPinned ? 'bookmark' : 'bookmark-outline'}
+              size={16}
+              color={memo.isPinned ? theme.accent : theme.textMuted}
+            />
           </TouchableOpacity>
           <TouchableOpacity
             testID="archive-btn"
@@ -67,9 +73,7 @@ export function MemoItem({
             accessibilityLabel="アーカイブ"
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <Text style={[styles.actionIcon, { color: theme.textMuted }]}>
-              ↓
-            </Text>
+            <Ionicons name="archive-outline" size={16} color={theme.textMuted} />
           </TouchableOpacity>
           <TouchableOpacity
             testID="copy-btn"
@@ -77,9 +81,11 @@ export function MemoItem({
             accessibilityLabel="コピー"
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <Text style={[styles.actionIcon, { color: theme.accent }]}>
-              {copied ? '✓' : '⧉'}
-            </Text>
+            <Ionicons
+              name={copied ? 'checkmark' : 'copy-outline'}
+              size={16}
+              color={copied ? theme.accent : theme.textMuted}
+            />
           </TouchableOpacity>
         </View>
       </TouchableOpacity>
@@ -107,9 +113,6 @@ function pad(value: number): string {
 }
 
 const styles = StyleSheet.create({
-  actionIcon: {
-    fontSize: 14,
-  },
   card: {
     borderRadius: 8,
     borderWidth: 1,
