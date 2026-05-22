@@ -163,6 +163,7 @@ export function useMemos() {
     memos,
     pinnedMemos,
     regularMemos,
+    loadMemos,
     createMemo,
     updateMemo,
     togglePin,

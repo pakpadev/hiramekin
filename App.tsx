@@ -47,6 +47,7 @@ export default function App() {
   const {
     pinnedMemos,
     regularMemos,
+    loadMemos,
     createMemo,
     updateMemo,
     togglePin,
@@ -126,7 +127,7 @@ export default function App() {
         return
       }
 
-      if (inputContent.length === 0 && text.length === 1) {
+      if (inputContent.length === 0 && text.length > 0) {
         const id = await createMemo(text)
         setUiState((state) => ({ ...state, editingMemoId: id }))
       }
@@ -311,7 +312,12 @@ export default function App() {
         />
 
         <Modal visible={showSettings} animationType="slide">
-          <SettingsScreen onClose={() => setShowSettings(false)} />
+          <SettingsScreen
+            onClose={() => {
+              setShowSettings(false)
+              loadMemos()
+            }}
+          />
         </Modal>
 
         <NotifyPicker
