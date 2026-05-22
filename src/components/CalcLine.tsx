@@ -33,7 +33,10 @@ export function CalcLine({
 
   return (
     <View style={styles.row}>
-      <Text style={[styles.expression, { color: isDark ? '#f2f2f2' : '#111' }]}>
+      <Text
+        style={[styles.expression, { color: isDark ? '#f2f2f2' : '#111' }]}
+        numberOfLines={1}
+      >
         {line}
       </Text>
       <TouchableOpacity onPress={onToggle}>
@@ -51,9 +54,9 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   expression: {
-    flex: 1,
     fontSize: 16,
     lineHeight: 24,
+    maxWidth: '80%',
   },
   plainLine: {
     fontSize: 16,
