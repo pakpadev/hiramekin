@@ -3003,6 +3003,6 @@ Task 21 最終確認
 - Docker内で `npm run typecheck`、全Jest、`expo export --platform web` を実行し、すべて成功。
 - Web/PWAはChromiumの `Page.getInstallabilityErrors` で installability error なしを確認。
 - Android/iOSは `expo prebuild --no-install` でネイティブ設定を同期済み。
-- Androidは `AndroidManifest.xml` に `RECORD_AUDIO` が反映済み。ローカルDockerイメージにJDK/Android SDKがないため、この環境ではDebug APKビルドと実機接続確認は未実施。
+- Androidは `AndroidManifest.xml` に `RECORD_AUDIO` が反映済み。DockerfileにJDK 17 / Android SDK / NDKを追加し、`./gradlew assembleDebug --no-daemon --max-workers=1` でDebug APKビルド成功。ADBで接続端末が見えないため、実機での音声入力・通知操作確認は未実施。
 - iOSは `Info.plist` に `NSMicrophoneUsageDescription` と `NSSpeechRecognitionUsageDescription` が反映済み。Windows環境のためiOS実機ビルド確認は未実施。
 - `.superpowers/` はブレスト用一時成果物としてリポジトリ対象外にし、`.gitignore` に追加。

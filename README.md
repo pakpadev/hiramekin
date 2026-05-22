@@ -37,3 +37,40 @@ docker compose run --rm app npx expo export --platform web
 ```
 
 Visual smoke checks use Playwright with Chromium installed in the Docker image.
+
+## Android Debug Build
+
+The Docker image includes JDK 17 and Android SDK packages needed for the Expo
+bare Android build.
+
+Build the debug APK:
+
+```bash
+docker compose exec app bash -lc "cd android && ./gradlew assembleDebug --no-daemon --max-workers=1"
+```
+
+The APK is generated at:
+
+```text
+android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+Check connected Android devices:
+
+```bash
+docker compose exec app adb devices -l
+```
+
+Install the debug APK when a device is connected:
+
+```bash
+docker compose exec app adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+Manual Android smoke checks:
+
+- App launches and the memo input is focused.
+- Memo creation, save, search, pin, and archive work.
+- `100+200`, `=100+200`, and `１００＋２００` show `300`.
+- Microphone permission appears and voice input inserts recognized text.
+- Notification permission appears and a scheduled memo notification fires.
