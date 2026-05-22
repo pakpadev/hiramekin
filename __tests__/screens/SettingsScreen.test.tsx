@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native'
+import { Linking } from 'react-native'
 import { SettingsScreen } from '@/screens/SettingsScreen'
 import type { IStorage } from '@/services/storage/IStorage'
 import type { Memo } from '@/types'
@@ -26,6 +27,8 @@ const mockStorage: jest.Mocked<IStorage> = {
 jest.mock('@/services/storage', () => ({
   getStorage: () => mockStorage,
 }))
+
+jest.spyOn(Linking, 'openURL').mockResolvedValue(undefined)
 
 describe('SettingsScreen', () => {
   beforeEach(() => {
@@ -71,5 +74,15 @@ describe('SettingsScreen', () => {
     fireEvent.press(screen.getByText('アーカイブを見る'))
 
     expect(await screen.findByText('アーカイブはありません')).toBeTruthy()
+  })
+
+  it('APKダウンロードページを開く', () => {
+    render(<SettingsScreen onClose={jest.fn()} />)
+
+    fireEvent.press(screen.getByText('Android APKをダウンロード'))
+
+    expect(Linking.openURL).toHaveBeenCalledWith(
+      'https://github.com/pakpadev/hiramekin/releases/download/v1.0.0-beta/hiramekin-v1.0.0-beta.apk',
+    )
   })
 })

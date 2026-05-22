@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Alert,
   FlatList,
+  Linking,
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -14,6 +16,9 @@ interface SettingsScreenProps {
   onClose: () => void
   isDark?: boolean
 }
+
+const APK_DOWNLOAD_URL =
+  'https://github.com/pakpadev/hiramekin/releases/download/v1.0.0-beta/hiramekin-v1.0.0-beta.apk'
 
 export function SettingsScreen({ onClose, isDark = false }: SettingsScreenProps) {
   const [archivedMemos, setArchivedMemos] = useState<Memo[]>([])
@@ -48,6 +53,11 @@ export function SettingsScreen({ onClose, isDark = false }: SettingsScreenProps)
         },
       },
     ])
+  }
+
+  const handleOpenDownload = () => {
+    const downloadUrl = Platform.OS === 'web' ? '/download.html' : APK_DOWNLOAD_URL
+    Linking.openURL(downloadUrl)
   }
 
   if (showArchive) {
@@ -151,6 +161,21 @@ export function SettingsScreen({ onClose, isDark = false }: SettingsScreenProps)
           アーカイブを見る
         </Text>
       </TouchableOpacity>
+      <TouchableOpacity
+        accessibilityRole="link"
+        style={[
+          styles.menuItem,
+          { borderBottomColor: isDark ? '#303030' : '#eee' },
+        ]}
+        onPress={handleOpenDownload}
+      >
+        <Text style={[styles.menuLabel, { color: isDark ? '#f2f2f2' : '#111' }]}>
+          Android APKをダウンロード
+        </Text>
+        <Text style={[styles.menuDescription, { color: isDark ? '#aaa' : '#666' }]}>
+          v1.0.0 beta の直接配布ページを開く
+        </Text>
+      </TouchableOpacity>
     </View>
   )
 }
@@ -197,6 +222,10 @@ const styles = StyleSheet.create({
   },
   menuLabel: {
     fontSize: 16,
+  },
+  menuDescription: {
+    fontSize: 13,
+    marginTop: 4,
   },
   restoreButton: {
     color: '#007AFF',
