@@ -28,6 +28,16 @@
     },
     "ios": {
       "bundleIdentifier": "com.hiramekin.app"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "favicon": "./assets/favicon.png",
+      "name": "閃筋",
+      "shortName": "閃筋",
+      "description": "一瞬のひらめきを最速で書き留めるメモアプリ",
+      "themeColor": "#007AFF",
+      "backgroundColor": "#ffffff"
     }
   }
 }
