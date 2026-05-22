@@ -28,7 +28,7 @@ export function evaluateLine(line: string): string | null {
 }
 
 function stripResult(line: string): string {
-  return line.split(/[=＝]/)[0]
+  return line.trimStart().replace(/^[=＝]\s*/, '').split(/[=＝]/)[0]
 }
 
 function getExpression(line: string): string {

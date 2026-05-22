@@ -50,6 +50,11 @@ describe('evaluateLine', () => {
     expect(evaluateLine('100 + 200 = 999')).toBe('300')
   })
 
+  it('先頭 = 付きの数式を計算する', () => {
+    expect(evaluateLine('=100 + 200')).toBe('300')
+    expect(evaluateLine('＝１００＋２００')).toBe('300')
+  })
+
   it('ラベル付き数式を計算する', () => {
     expect(evaluateLine('合計: 100 + 200')).toBe('300')
     expect(evaluateLine('合計：100 + 200')).toBe('300')
