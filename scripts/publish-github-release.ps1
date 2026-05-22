@@ -30,7 +30,7 @@ $repoSlug = "$Owner/$Repo"
 $releaseApi = "https://api.github.com/repos/$repoSlug/releases"
 $releaseByTagApi = "$releaseApi/tags/$Tag"
 
-$releaseNotes = Get-Content -LiteralPath $ReleaseNotesPath -Raw -Encoding UTF8
+$releaseNotes = [string](Get-Content -LiteralPath $ReleaseNotesPath -Raw -Encoding UTF8)
 
 try {
   $release = Invoke-RestMethod -Method Get -Uri $releaseByTagApi -Headers $apiHeaders
