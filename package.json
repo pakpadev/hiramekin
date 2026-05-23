@@ -1,6 +1,6 @@
 {
   "name": "hiramekin",
-  "version": "1.0.8-beta",
+  "version": "1.0.9-beta",
   "main": "index.js",
   "scripts": {
     "start": "expo start --dev-client",
