@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import {
-  ScrollView,
+  Animated,
+  PanResponder,
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -11,6 +13,9 @@ import * as Clipboard from 'expo-clipboard'
 import { Ionicons } from '@expo/vector-icons'
 import { getTheme } from '@/theme'
 import type { Memo } from '@/types'
+
+const ARCHIVE_ACTION_WIDTH = 112
+const OPEN_THRESHOLD = 40
 
 interface MemoItemProps {
   memo: Memo
@@ -30,16 +35,47 @@ export function MemoItem({
   const preview = memo.content.split('\n')[0] || ''
   const theme = getTheme(isDark)
   const [copied, setCopied] = useState(false)
+  const [isArchiveOpen, setIsArchiveOpen] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
   const { width } = useWindowDimensions()
-  const scrollRef = useRef<ScrollView>(null)
+  const translateX = useRef(new Animated.Value(0)).current
+  const translateXRef = useRef(0)
+  const archiveOpenRef = useRef(false)
+  const pointerActiveRef = useRef(false)
+  const pointerStartXRef = useRef(0)
+  const dragMovedRef = useRef(false)
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const cardWidth = Math.max(280, width - 24)
+  const isDesktop = width >= 768
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, gesture) =>
+        Math.abs(gesture.dx) > 8 && Math.abs(gesture.dx) > Math.abs(gesture.dy),
+      onPanResponderGrant: () => {
+        dragMovedRef.current = false
+      },
+      onPanResponderMove: (_, gesture) => {
+        updateDragValue(
+          (archiveOpenRef.current ? -ARCHIVE_ACTION_WIDTH : 0) + gesture.dx,
+        )
+      },
+      onPanResponderRelease: (_, gesture) => {
+        finishDrag(gesture.dx)
+      },
+      onPanResponderTerminate: () => {
+        animateArchive(archiveOpenRef.current)
+      },
+    }),
+  ).current
 
   useEffect(() => {
     return () => {
       if (copyTimerRef.current) clearTimeout(copyTimerRef.current)
     }
   }, [])
+
+  useEffect(() => {
+    archiveOpenRef.current = isArchiveOpen
+  }, [isArchiveOpen])
 
   async function handleCopy() {
     await Clipboard.setStringAsync(memo.content)
@@ -49,22 +85,110 @@ export function MemoItem({
   }
 
   function handleArchive() {
-    scrollRef.current?.scrollTo({ x: 0, animated: true })
+    animateArchive(false)
     onArchive(memo.id)
   }
 
+  function updateDragValue(rawX: number) {
+    const nextX = Math.max(-ARCHIVE_ACTION_WIDTH, Math.min(0, rawX))
+    translateXRef.current = nextX
+    dragMovedRef.current = Math.abs(nextX) > 4
+    translateX.setValue(nextX)
+  }
+
+  function animateArchive(open: boolean) {
+    const toValue = open ? -ARCHIVE_ACTION_WIDTH : 0
+
+    setIsArchiveOpen(open)
+    archiveOpenRef.current = open
+    translateXRef.current = toValue
+    Animated.spring(translateX, {
+      toValue,
+      useNativeDriver: true,
+      tension: 90,
+      friction: 12,
+    }).start()
+  }
+
+  function finishDrag(deltaX: number) {
+    const open =
+      deltaX < -OPEN_THRESHOLD || translateXRef.current < -OPEN_THRESHOLD
+
+    animateArchive(open)
+    setTimeout(() => {
+      dragMovedRef.current = false
+    }, 0)
+  }
+
+  function handlePointerDown(event: any) {
+    if (event.nativeEvent.button != null && event.nativeEvent.button !== 0) return
+
+    pointerActiveRef.current = true
+    pointerStartXRef.current = event.nativeEvent.pageX
+    dragMovedRef.current = false
+  }
+
+  function handlePointerMove(event: any) {
+    if (!pointerActiveRef.current) return
+
+    const deltaX = event.nativeEvent.pageX - pointerStartXRef.current
+    const baseX = isArchiveOpen ? -ARCHIVE_ACTION_WIDTH : 0
+    updateDragValue(baseX + deltaX)
+  }
+
+  function handlePointerEnd(event: any) {
+    if (!pointerActiveRef.current) return
+
+    pointerActiveRef.current = false
+    finishDrag(event.nativeEvent.pageX - pointerStartXRef.current)
+  }
+
+  const desktopHoverHandlers =
+    Platform.OS === 'web'
+      ? {
+          onMouseEnter: () => setIsHovered(true),
+          onMouseLeave: () => setIsHovered(false),
+        }
+      : {}
+  const dragHandlers =
+    Platform.OS === 'web'
+      ? {
+          onPointerDown: handlePointerDown,
+          onPointerMove: handlePointerMove,
+          onPointerUp: handlePointerEnd,
+          onPointerCancel: handlePointerEnd,
+        }
+      : panResponder.panHandlers
+
   return (
-    <View style={styles.clip}>
-      <ScrollView
-        ref={scrollRef}
-        horizontal
-        bounces={false}
-        decelerationRate="fast"
-        keyboardShouldPersistTaps="handled"
-        scrollEventThrottle={16}
-        showsHorizontalScrollIndicator={false}
-        snapToOffsets={[0, 92]}
-        snapToEnd={false}
+    <View
+      style={styles.clip}
+      {...(desktopHoverHandlers as any)}
+    >
+      <View
+        style={[
+          styles.archivePane,
+          { backgroundColor: theme.danger, borderColor: theme.danger },
+        ]}
+      >
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel="アーカイブ"
+          testID="archive-confirm-btn"
+          style={styles.archiveAction}
+          onPress={handleArchive}
+        >
+          <Ionicons name="archive-outline" size={20} color="#ffffff" />
+          <Text style={styles.archiveText}>アーカイブ</Text>
+        </TouchableOpacity>
+      </View>
+      <Animated.View
+        {...(dragHandlers as any)}
+        style={[
+          {
+            transform: [{ translateX }],
+          },
+        ]}
       >
         <View
           style={[
@@ -72,14 +196,20 @@ export function MemoItem({
             {
               backgroundColor: theme.surface,
               borderColor: theme.border,
-              width: cardWidth,
             },
           ]}
         >
           <TouchableOpacity
             accessibilityRole="button"
             style={styles.container}
-            onPress={() => onPress(memo.id)}
+            onPress={() => {
+              if (dragMovedRef.current) return
+              if (isArchiveOpen) {
+                animateArchive(false)
+                return
+              }
+              onPress(memo.id)
+            }}
           >
             <Text
               style={[styles.content, { color: theme.textBody }]}
@@ -117,19 +247,22 @@ export function MemoItem({
                 />
               </TouchableOpacity>
             </View>
+            {isDesktop && !isArchiveOpen ? (
+              <Text
+                style={[
+                  styles.dragHint,
+                  {
+                    color: theme.textMuted,
+                    opacity: isHovered ? 0.75 : 0.35,
+                  },
+                ]}
+              >
+                ←
+              </Text>
+            ) : null}
           </TouchableOpacity>
         </View>
-        <TouchableOpacity
-          accessibilityRole="button"
-          accessibilityLabel="アーカイブ"
-          testID="archive-confirm-btn"
-          style={[styles.archiveAction, { backgroundColor: theme.danger }]}
-          onPress={handleArchive}
-        >
-          <Ionicons name="archive-outline" size={20} color="#ffffff" />
-          <Text style={styles.archiveText}>アーカイブ</Text>
-        </TouchableOpacity>
-      </ScrollView>
+      </Animated.View>
     </View>
   )
 }
@@ -157,9 +290,16 @@ const styles = StyleSheet.create({
   archiveAction: {
     alignItems: 'center',
     gap: 3,
+    height: '100%',
     justifyContent: 'center',
     minHeight: 56,
-    width: 92,
+    width: ARCHIVE_ACTION_WIDTH,
+  },
+  archivePane: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'flex-end',
+    borderRadius: 8,
+    borderWidth: 1,
   },
   archiveText: {
     color: '#ffffff',
@@ -188,6 +328,11 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     fontSize: 15,
+  },
+  dragHint: {
+    fontSize: 14,
+    fontWeight: '700',
+    paddingRight: 6,
   },
   iconButton: {
     alignItems: 'center',
