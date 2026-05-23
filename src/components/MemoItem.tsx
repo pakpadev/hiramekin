@@ -143,6 +143,24 @@ export function MemoItem({
     finishDrag(event.nativeEvent.pageX - pointerStartXRef.current)
   }
 
+  function handleWheel(event: any) {
+    const deltaX = event.nativeEvent?.deltaX ?? 0
+    const deltaY = event.nativeEvent?.deltaY ?? 0
+
+    if (Math.abs(deltaX) < 8 || Math.abs(deltaX) < Math.abs(deltaY)) return
+
+    animateArchive(deltaX > 0)
+  }
+
+  function handleRowPress() {
+    if (dragMovedRef.current) return
+    if (isArchiveOpen) {
+      animateArchive(false)
+      return
+    }
+    onPress(memo.id)
+  }
+
   const desktopHoverHandlers =
     Platform.OS === 'web'
       ? {
@@ -157,6 +175,7 @@ export function MemoItem({
           onPointerMove: handlePointerMove,
           onPointerUp: handlePointerEnd,
           onPointerCancel: handlePointerEnd,
+          onWheel: handleWheel,
         }
       : panResponder.panHandlers
 
@@ -199,24 +218,21 @@ export function MemoItem({
             },
           ]}
         >
-          <TouchableOpacity
-            accessibilityRole="button"
-            style={styles.container}
-            onPress={() => {
-              if (dragMovedRef.current) return
-              if (isArchiveOpen) {
-                animateArchive(false)
-                return
-              }
-              onPress(memo.id)
-            }}
-          >
-            <Text
-              style={[styles.content, { color: theme.textBody }]}
-              numberOfLines={1}
+          <View style={styles.container}>
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel="メモを開く"
+              activeOpacity={0.74}
+              style={styles.contentButton}
+              onPress={handleRowPress}
             >
-              {preview}
-            </Text>
+              <Text
+                style={[styles.content, { color: theme.textBody }]}
+                numberOfLines={1}
+              >
+                {preview}
+              </Text>
+            </TouchableOpacity>
             <View style={styles.meta}>
               <Text style={[styles.time, { color: theme.textMuted }]}>
                 {formatTimestamp(memo.updatedAt)}
@@ -247,20 +263,23 @@ export function MemoItem({
                 />
               </TouchableOpacity>
             </View>
-            {isDesktop && !isArchiveOpen ? (
-              <Text
+            {!isArchiveOpen ? (
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel="アーカイブ候補を表示"
+                testID="archive-open-btn"
                 style={[
                   styles.dragHint,
-                  {
-                    color: theme.textMuted,
-                    opacity: isHovered ? 0.75 : 0.35,
-                  },
+                  { opacity: isDesktop && !isHovered ? 0.35 : 0.75 },
                 ]}
+                onPress={() => animateArchive(true)}
               >
-                ←
-              </Text>
+                <Text style={[styles.dragHintText, { color: theme.textMuted }]}>
+                  ←
+                </Text>
+              </TouchableOpacity>
             ) : null}
-          </TouchableOpacity>
+          </View>
         </View>
       </Animated.View>
     </View>
@@ -326,13 +345,22 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   content: {
-    flex: 1,
     fontSize: 15,
   },
+  contentButton: {
+    flex: 1,
+    justifyContent: 'center',
+    minHeight: 44,
+  },
   dragHint: {
-    fontSize: 14,
+    alignItems: 'center',
+    height: 44,
+    justifyContent: 'center',
+    width: 32,
+  },
+  dragHintText: {
+    fontSize: 15,
     fontWeight: '700',
-    paddingRight: 6,
   },
   iconButton: {
     alignItems: 'center',
