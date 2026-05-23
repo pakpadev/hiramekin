@@ -40,9 +40,12 @@ export default function App() {
   const [showSettings, setShowSettings] = useState(false)
   const [showNotifyPicker, setShowNotifyPicker] = useState(false)
   const [searchResults, setSearchResults] = useState<Memo[]>([])
+  const [archivedToast, setArchivedToast] = useState<Memo | null>(null)
   const insertRef = useRef<((text: string) => void) | null>(null)
   const focusInputRef = useRef<(() => void) | null>(null)
+  const editingMemoIdRef = useRef<string | null>(null)
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const creatingMemoRef = useRef(false)
   const latestInputContentRef = useRef('')
   const colorScheme = useColorScheme()
@@ -56,6 +59,7 @@ export default function App() {
     updateMemo,
     togglePin,
     archiveMemo,
+    restoreMemo,
     searchMemos,
     setNotifyAt,
   } = useMemos()
@@ -73,6 +77,10 @@ export default function App() {
     insertRef.current?.(text)
     setUiState((state) => ({ ...state, isListening: false }))
   })
+
+  useEffect(() => {
+    editingMemoIdRef.current = uiState.editingMemoId
+  }, [uiState.editingMemoId])
 
   const scheduleSave = useCallback(
     (id: string, content: string) => {
@@ -119,6 +127,7 @@ export default function App() {
   useEffect(() => {
     return () => {
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
     }
   }, [])
 
@@ -240,12 +249,25 @@ export default function App() {
 
     await archiveMemo(id)
     await trigger('archive')
+    if (memo) {
+      setArchivedToast(memo)
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
+      toastTimerRef.current = setTimeout(() => setArchivedToast(null), 4500)
+    }
 
-    if (uiState.editingMemoId === id) {
+    if (editingMemoIdRef.current === id) {
       setInputContent('')
       setUiState((state) => ({ ...state, editingMemoId: null }))
       Keyboard.dismiss()
     }
+  }
+
+  const handleUndoArchive = async () => {
+    if (!archivedToast) return
+
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
+    await restoreMemo(archivedToast.id)
+    setArchivedToast(null)
   }
 
   const isEditing = uiState.editingMemoId !== null || inputContent.length > 0
@@ -340,6 +362,37 @@ export default function App() {
           isDark={isDark}
         />
 
+        {archivedToast ? (
+          <View
+            style={[
+              styles.toast,
+              {
+                backgroundColor: isDark ? '#f4f4f5' : '#18181b',
+                shadowColor: isDark ? '#000000' : '#18181b',
+              },
+            ]}
+          >
+            <Text
+              style={[
+                styles.toastText,
+                { color: isDark ? '#18181b' : '#ffffff' },
+              ]}
+            >
+              アーカイブしました
+            </Text>
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel="アーカイブを元に戻す"
+              style={styles.toastButton}
+              onPress={handleUndoArchive}
+            >
+              <Text style={[styles.toastButtonText, { color: theme.accent }]}>
+                元に戻す
+              </Text>
+            </TouchableOpacity>
+          </View>
+        ) : null}
+
         <VoiceInput
           visible={uiState.isListening || voice.isListening}
           onCancel={() => {
@@ -430,5 +483,37 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     elevation: 10,
     zIndex: 10,
+  },
+  toast: {
+    alignItems: 'center',
+    borderRadius: 8,
+    bottom: 76,
+    elevation: 12,
+    flexDirection: 'row',
+    gap: 16,
+    justifyContent: 'space-between',
+    left: 16,
+    minHeight: 52,
+    paddingHorizontal: 16,
+    position: 'absolute',
+    right: 16,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
+    zIndex: 30,
+  },
+  toastButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 44,
+  },
+  toastButtonText: {
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  toastText: {
+    flex: 1,
+    fontSize: 15,
+    fontWeight: '600',
   },
 })

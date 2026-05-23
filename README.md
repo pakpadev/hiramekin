@@ -4,7 +4,7 @@
 
 ## APK Download
 
-The Android v1.0.1 beta APK is distributed through GitHub Releases and linked
+The Android v1.0.8 beta APK is distributed through GitHub Releases and linked
 from the static download page:
 
 ```text
@@ -14,10 +14,10 @@ public/download.html
 Release asset URL:
 
 ```text
-https://github.com/pakpadev/hiramekin/releases/download/v1.0.1-beta/hiramekin-v1.0.1-beta.apk
+https://github.com/pakpadev/hiramekin/releases/download/v1.0.8-beta/hiramekin-v1.0.8-beta.apk
 ```
 
-See `docs/download.md` and `docs/release/v1.0.1-beta.md` for the release
+See `docs/download.md` and `docs/release/v1.0.8-beta.md` for the release
 checklist, APK hash, and installation notes.
 
 ## Docker Development

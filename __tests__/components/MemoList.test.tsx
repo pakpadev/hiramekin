@@ -19,6 +19,8 @@ describe('MemoList', () => {
         pinnedMemos={[makeMemo('1', 'ピン留めメモ', true)]}
         regularMemos={[makeMemo('2', '通常メモ')]}
         onSelectMemo={jest.fn()}
+        onPinMemo={jest.fn()}
+        onArchiveMemo={jest.fn()}
       />,
     )
 
@@ -33,6 +35,8 @@ describe('MemoList', () => {
         pinnedMemos={[]}
         regularMemos={[makeMemo('1', '通常メモ')]}
         onSelectMemo={jest.fn()}
+        onPinMemo={jest.fn()}
+        onArchiveMemo={jest.fn()}
       />,
     )
 
@@ -42,7 +46,13 @@ describe('MemoList', () => {
 
   it('メモがない場合は空表示を出す', () => {
     render(
-      <MemoList pinnedMemos={[]} regularMemos={[]} onSelectMemo={jest.fn()} />,
+      <MemoList
+        pinnedMemos={[]}
+        regularMemos={[]}
+        onSelectMemo={jest.fn()}
+        onPinMemo={jest.fn()}
+        onArchiveMemo={jest.fn()}
+      />,
     )
 
     expect(screen.getByText('メモはありません')).toBeTruthy()

@@ -14,7 +14,14 @@ const memo: Memo = {
 
 describe('MemoItem', () => {
   it('content の先頭行を表示する', () => {
-    render(<MemoItem memo={{ ...memo, content: '1行目\n2行目' }} onPress={jest.fn()} />)
+    render(
+      <MemoItem
+        memo={{ ...memo, content: '1行目\n2行目' }}
+        onPress={jest.fn()}
+        onPin={jest.fn()}
+        onArchive={jest.fn()}
+      />,
+    )
 
     expect(screen.getByText('1行目')).toBeTruthy()
     expect(screen.queryByText('2行目')).toBeNull()
@@ -22,7 +29,14 @@ describe('MemoItem', () => {
 
   it('タップで onPress が呼ばれる', () => {
     const onPress = jest.fn()
-    render(<MemoItem memo={memo} onPress={onPress} />)
+    render(
+      <MemoItem
+        memo={memo}
+        onPress={onPress}
+        onPin={jest.fn()}
+        onArchive={jest.fn()}
+      />,
+    )
 
     fireEvent.press(screen.getByText('テストメモの内容'))
 
@@ -30,7 +44,14 @@ describe('MemoItem', () => {
   })
 
   it('isPinned のときピン表示を出す', () => {
-    render(<MemoItem memo={{ ...memo, isPinned: true }} onPress={jest.fn()} />)
+    render(
+      <MemoItem
+        memo={{ ...memo, isPinned: true }}
+        onPress={jest.fn()}
+        onPin={jest.fn()}
+        onArchive={jest.fn()}
+      />,
+    )
 
     expect(screen.getByTestId('pin-icon')).toBeTruthy()
   })

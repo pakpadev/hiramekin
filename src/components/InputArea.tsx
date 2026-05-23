@@ -111,13 +111,13 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   innerPad: {
-    padding: 12,
+    padding: 14,
   },
   input: {
     backgroundColor: 'transparent',
     borderWidth: 0,
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: 17,
+    lineHeight: 26,
     padding: 0,
   },
   wrapper: {

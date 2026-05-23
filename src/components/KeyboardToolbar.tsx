@@ -24,7 +24,10 @@ export function KeyboardToolbar({
   const theme = getTheme(isDark)
   const buttonStyle = [
     styles.button,
-    { backgroundColor: theme.border, borderColor: 'transparent' },
+    {
+      backgroundColor: theme.surface,
+      borderColor: theme.border,
+    },
   ]
   const activeButtonStyle = [
     styles.button,
@@ -159,8 +162,10 @@ const styles = StyleSheet.create({
   button: {
     borderWidth: StyleSheet.hairlineWidth,
     borderRadius: 6,
-    paddingHorizontal: 14,
-    paddingVertical: 6,
+    justifyContent: 'center',
+    minHeight: 44,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
   },
   container: {
     borderTopWidth: StyleSheet.hairlineWidth,
@@ -168,15 +173,18 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   label: {
-    fontSize: 14,
+    fontSize: 15,
+    fontWeight: '600',
   },
   menuButton: {
-    paddingHorizontal: 12,
+    justifyContent: 'center',
+    minHeight: 44,
+    paddingHorizontal: 14,
     paddingVertical: 8,
   },
   scrollContent: {
     flexDirection: 'row',
-    gap: 4,
+    gap: 8,
     paddingRight: 8,
   },
   timeMenu: {

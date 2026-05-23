@@ -50,21 +50,22 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     borderRadius: 8,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 1,
     flexDirection: 'row',
     marginHorizontal: 12,
     marginVertical: 6,
+    minHeight: 44,
     paddingHorizontal: 10,
-    paddingVertical: 6,
+    paddingVertical: 8,
   },
   clear: {
     color: '#888',
-    fontSize: 16,
-    paddingHorizontal: 4,
+    fontSize: 20,
+    paddingHorizontal: 8,
   },
   input: {
     flex: 1,
-    fontSize: 15,
+    fontSize: 16,
   },
 })
 

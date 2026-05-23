@@ -11,27 +11,27 @@ export interface Theme {
 }
 
 const dark: Theme = {
-  background: '#111111',
-  surface: '#1a1a1a',
+  background: '#09090b',
+  surface: '#18181b',
   textPrimary: '#ffffff',
-  textBody: '#cccccc',
-  textMuted: '#555555',
+  textBody: '#e4e4e7',
+  textMuted: '#a1a1aa',
   accent: '#00e5ff',
-  danger: '#ff4c4c',
-  border: '#2a2a2a',
-  shimmerColors: ['#111111', '#00e5ff', '#b2f0ff', '#111111'],
+  danger: '#ff5a5f',
+  border: '#3f3f46',
+  shimmerColors: ['#09090b', '#00e5ff', '#b2f0ff', '#09090b'],
 }
 
 const light: Theme = {
-  background: '#f5f5f5',
+  background: '#f7f8fa',
   surface: '#ffffff',
   textPrimary: '#111111',
-  textBody: '#333333',
-  textMuted: '#888888',
+  textBody: '#24292f',
+  textMuted: '#5f6368',
   accent: '#00acc1',
-  danger: '#d32f2f',
-  border: '#e0e0e0',
-  shimmerColors: ['#f5f5f5', '#00acc1', '#80deea', '#f5f5f5'],
+  danger: '#c62828',
+  border: '#cfd4dc',
+  shimmerColors: ['#f7f8fa', '#00acc1', '#80deea', '#f7f8fa'],
 }
 
 export function getTheme(isDark: boolean): Theme {
