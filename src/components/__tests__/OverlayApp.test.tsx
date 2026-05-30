@@ -7,6 +7,12 @@ jest.mock('@tauri-apps/api/core', () => ({
   invoke: jest.fn().mockResolvedValue(undefined),
 }))
 
+jest.mock('@tauri-apps/api/window', () => ({
+  getCurrentWindow: jest.fn(() => ({
+    startDragging: jest.fn().mockResolvedValue(undefined),
+  })),
+}))
+
 jest.mock('expo-speech-recognition', () => ({
   ExpoSpeechRecognitionModule: {
     addListener: jest.fn(() => ({ remove: jest.fn() })),
@@ -42,9 +48,30 @@ describe('OverlayApp', () => {
     expect(getByText('= 計算')).toBeTruthy()
     expect(getByText('議事録')).toBeTruthy()
     expect(getByText('マイク')).toBeTruthy()
-    expect(getByText('透明度 88%')).toBeTruthy()
+    expect(getByText('通常 45%')).toBeTruthy()
+    expect(getByText('ホバー 90%')).toBeTruthy()
     expect(getByText('新規')).toBeTruthy()
     expect(queryByText('保存')).toBeNull()
+  })
+
+  it('adjusts normal and hover opacity in five percent steps', () => {
+    const setItem = jest.fn()
+    Object.defineProperty(window, 'localStorage', {
+      configurable: true,
+      value: {
+        getItem: jest.fn().mockReturnValue(null),
+        setItem,
+      },
+    })
+    const { getByTestId, getByText } = render(<OverlayApp />)
+
+    fireEvent.press(getByTestId('normal-opacity-increase'))
+    fireEvent.press(getByTestId('hover-opacity-decrease'))
+
+    expect(getByText('通常 50%')).toBeTruthy()
+    expect(getByText('ホバー 85%')).toBeTruthy()
+    expect(setItem).toHaveBeenCalledWith('hiramekin-overlay-normal-opacity', '50')
+    expect(setItem).toHaveBeenCalledWith('hiramekin-overlay-hover-opacity', '85')
   })
 
   it('auto-saves input changes', async () => {
