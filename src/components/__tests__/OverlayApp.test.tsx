@@ -48,15 +48,12 @@ describe('OverlayApp', () => {
     expect(getByText('= 計算')).toBeTruthy()
     expect(getByText('議事録')).toBeTruthy()
     expect(getByText('マイク')).toBeTruthy()
-    expect(getByText('通常')).toBeTruthy()
     expect(getByText('45%')).toBeTruthy()
-    expect(getByText('ホバー')).toBeTruthy()
-    expect(getByText('90%')).toBeTruthy()
     expect(getByText('新規')).toBeTruthy()
     expect(queryByText('保存')).toBeNull()
   })
 
-  it('adjusts normal and hover opacity in five percent steps', () => {
+  it('adjusts normal opacity in five percent steps', () => {
     const setItem = jest.fn()
     Object.defineProperty(window, 'localStorage', {
       configurable: true,
@@ -68,12 +65,9 @@ describe('OverlayApp', () => {
     const { getByTestId, getByText } = render(<OverlayApp />)
 
     fireEvent.press(getByTestId('normal-opacity-increase'))
-    fireEvent.press(getByTestId('hover-opacity-decrease'))
 
     expect(getByText('50%')).toBeTruthy()
-    expect(getByText('85%')).toBeTruthy()
     expect(setItem).toHaveBeenCalledWith('hiramekin-overlay-normal-opacity', '50')
-    expect(setItem).toHaveBeenCalledWith('hiramekin-overlay-hover-opacity', '85')
   })
 
   it('auto-saves input changes', async () => {

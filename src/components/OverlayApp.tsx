@@ -20,9 +20,8 @@ import { getCurrentWindow } from '@tauri-apps/api/window'
 
 const OVERLAY_OPACITY_KEY = 'hiramekin-overlay-opacity'
 const OVERLAY_NORMAL_OPACITY_KEY = 'hiramekin-overlay-normal-opacity'
-const OVERLAY_HOVER_OPACITY_KEY = 'hiramekin-overlay-hover-opacity'
 const DEFAULT_NORMAL_OPACITY = 45
-const DEFAULT_HOVER_OPACITY = 90
+const HOVER_OPACITY = 75
 const OPACITY_STEP = 5
 
 function clampOpacity(value: number) {
@@ -34,7 +33,6 @@ export function OverlayApp() {
   const [memoId, setMemoId] = useState<string | null>(null)
   const [isListening, setIsListening] = useState(false)
   const [normalOpacity, setNormalOpacity] = useState(DEFAULT_NORMAL_OPACITY)
-  const [hoverOpacity, setHoverOpacity] = useState(DEFAULT_HOVER_OPACITY)
   const [isHovered, setIsHovered] = useState(false)
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const memoIdRef = useRef<string | null>(null)
@@ -78,16 +76,11 @@ export function OverlayApp() {
     const legacyValue = window.localStorage.getItem(OVERLAY_OPACITY_KEY)
     const storedNormalValue =
       window.localStorage.getItem(OVERLAY_NORMAL_OPACITY_KEY) ?? legacyValue
-    const storedHoverValue = window.localStorage.getItem(OVERLAY_HOVER_OPACITY_KEY)
 
     const storedNormalOpacity = Number(storedNormalValue)
-    const storedHoverOpacity = Number(storedHoverValue)
 
     if (storedNormalValue !== null && Number.isFinite(storedNormalOpacity)) {
       setNormalOpacity(clampOpacity(storedNormalOpacity))
-    }
-    if (storedHoverValue !== null && Number.isFinite(storedHoverOpacity)) {
-      setHoverOpacity(clampOpacity(storedHoverOpacity))
     }
   }, [])
 
@@ -194,14 +187,6 @@ export function OverlayApp() {
     }
   }
 
-  const handleHoverOpacityChange = (delta: number) => {
-    const nextOpacity = clampOpacity(hoverOpacity + delta)
-    setHoverOpacity(nextOpacity)
-    if (typeof window !== 'undefined' && window.localStorage) {
-      window.localStorage.setItem(OVERLAY_HOVER_OPACITY_KEY, String(nextOpacity))
-    }
-  }
-
   const startDrag = () => {
     if (!isTauri()) return
 
@@ -224,7 +209,7 @@ export function OverlayApp() {
           'data-tauri-drag-region': true,
         } as any)
       : {}
-  const activeOpacity = (isHovered ? hoverOpacity : normalOpacity) / 100
+  const activeOpacity = (isHovered ? HOVER_OPACITY : normalOpacity) / 100
   const panelColor = theme.background
   const surfaceColor = theme.surface
 
@@ -252,7 +237,6 @@ export function OverlayApp() {
           </Text>
         </View>
         <OpacityStepper
-          label="通常"
           value={normalOpacity}
           onDecrease={() => handleNormalOpacityChange(-OPACITY_STEP)}
           onIncrease={() => handleNormalOpacityChange(OPACITY_STEP)}
@@ -260,16 +244,6 @@ export function OverlayApp() {
           borderColor={theme.border}
           buttonColor={surfaceColor}
           testIDPrefix="normal-opacity"
-        />
-        <OpacityStepper
-          label="ホバー"
-          value={hoverOpacity}
-          onDecrease={() => handleHoverOpacityChange(-OPACITY_STEP)}
-          onIncrease={() => handleHoverOpacityChange(OPACITY_STEP)}
-          textColor={theme.textBody}
-          borderColor={theme.border}
-          buttonColor={surfaceColor}
-          testIDPrefix="hover-opacity"
         />
         <TouchableOpacity
           accessibilityRole="button"
@@ -321,7 +295,6 @@ export function OverlayApp() {
 }
 
 interface OpacityStepperProps {
-  label: string
   value: number
   onDecrease: () => void
   onIncrease: () => void
@@ -332,7 +305,6 @@ interface OpacityStepperProps {
 }
 
 function OpacityStepper({
-  label,
   value,
   onDecrease,
   onIncrease,
@@ -349,7 +321,7 @@ function OpacityStepper({
       ]}
     >
       <TouchableOpacity
-        accessibilityLabel={`${label}透明度を下げる`}
+        accessibilityLabel="通常透明度を下げる"
         accessibilityRole="button"
         onPress={onDecrease}
         testID={`${testIDPrefix}-decrease`}
@@ -358,15 +330,12 @@ function OpacityStepper({
         <Text style={[styles.stepButtonText, { color: textColor }]}>{'<'}</Text>
       </TouchableOpacity>
       <View style={styles.stepperValue}>
-        <Text style={[styles.opacityLabel, { color: textColor }]}>
-          {label}
-        </Text>
         <Text style={[styles.opacityValue, { color: textColor }]}>
           {value}%
         </Text>
       </View>
       <TouchableOpacity
-        accessibilityLabel={`${label}透明度を上げる`}
+        accessibilityLabel="通常透明度を上げる"
         accessibilityRole="button"
         onPress={onIncrease}
         testID={`${testIDPrefix}-increase`}
@@ -394,11 +363,6 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingHorizontal: 6,
     paddingVertical: 6,
-  },
-  opacityLabel: {
-    fontSize: 10,
-    fontWeight: '700',
-    lineHeight: 12,
   },
   dragHandle: {
     alignItems: 'center',
@@ -448,8 +412,8 @@ const styles = StyleSheet.create({
   },
   stepperValue: {
     alignItems: 'center',
-    minWidth: 56,
-    paddingHorizontal: 2,
+    minWidth: 48,
+    paddingHorizontal: 4,
   },
   opacityValue: {
     fontSize: 12,
