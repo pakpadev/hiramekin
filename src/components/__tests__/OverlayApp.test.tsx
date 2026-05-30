@@ -2,6 +2,7 @@ import { fireEvent, render, waitFor } from '@testing-library/react-native'
 import { OverlayApp } from '../OverlayApp'
 
 const mockSave = jest.fn().mockResolvedValue(undefined)
+const mockStartDragging = jest.fn().mockResolvedValue(undefined)
 
 jest.mock('@tauri-apps/api/core', () => ({
   invoke: jest.fn().mockResolvedValue(undefined),
@@ -9,7 +10,7 @@ jest.mock('@tauri-apps/api/core', () => ({
 
 jest.mock('@tauri-apps/api/window', () => ({
   getCurrentWindow: jest.fn(() => ({
-    startDragging: jest.fn().mockResolvedValue(undefined),
+    startDragging: mockStartDragging,
   })),
 }))
 
@@ -31,6 +32,7 @@ jest.mock('@/services/storage', () => ({
 describe('OverlayApp', () => {
   beforeEach(() => {
     mockSave.mockClear()
+    mockStartDragging.mockClear()
     Object.defineProperty(window, 'localStorage', {
       configurable: true,
       value: {
@@ -48,7 +50,7 @@ describe('OverlayApp', () => {
     expect(getByText('= 計算')).toBeTruthy()
     expect(getByText('議事録')).toBeTruthy()
     expect(getByText('マイク')).toBeTruthy()
-    expect(getByText('45%')).toBeTruthy()
+    expect(getByTestId('normal-opacity-meter')).toBeTruthy()
     expect(getByTestId('overlay-new-memo-button')).toBeTruthy()
     expect(queryByText('保存')).toBeNull()
   })
@@ -62,12 +64,18 @@ describe('OverlayApp', () => {
         setItem,
       },
     })
-    const { getByTestId, getByText } = render(<OverlayApp />)
+    const { getByTestId } = render(<OverlayApp />)
 
     fireEvent.press(getByTestId('normal-opacity-increase'))
 
-    expect(getByText('50%')).toBeTruthy()
+    expect(getByTestId('normal-opacity-meter')).toBeTruthy()
     expect(setItem).toHaveBeenCalledWith('hiramekin-overlay-normal-opacity', '50')
+  })
+
+  it('uses the header as the overlay drag region', () => {
+    const { getByTestId } = render(<OverlayApp />)
+
+    expect(getByTestId('overlay-drag-region')).toBeTruthy()
   })
 
   it('auto-saves input changes', async () => {

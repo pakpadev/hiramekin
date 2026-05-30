@@ -23,6 +23,7 @@ const OVERLAY_NORMAL_OPACITY_KEY = 'hiramekin-overlay-normal-opacity'
 const DEFAULT_NORMAL_OPACITY = 45
 const HOVER_OPACITY = 75
 const OPACITY_STEP = 5
+const OPACITY_SEGMENTS = 5
 
 function clampOpacity(value: number) {
   return Math.min(100, Math.max(0, Math.round(value / OPACITY_STEP) * OPACITY_STEP))
@@ -206,7 +207,14 @@ export function OverlayApp() {
     Platform.OS === 'web'
       ? ({
           onMouseDown: startDrag,
+          dataSet: { tauriDragRegion: '' },
           'data-tauri-drag-region': true,
+        } as any)
+      : {}
+  const stopHeaderDragProps =
+    Platform.OS === 'web'
+      ? ({
+          onMouseDown: (event: MouseEvent) => event.stopPropagation(),
         } as any)
       : {}
   const activeOpacity = (isHovered ? HOVER_OPACITY : normalOpacity) / 100
@@ -224,19 +232,14 @@ export function OverlayApp() {
         },
       ]}
     >
-      <View style={[styles.opacityBar, { borderBottomColor: theme.border }]}>
-        <View style={styles.leftControls}>
-          <View
-            {...webDragProps}
-            accessibilityLabel="オーバーレイを移動"
-            accessibilityRole="button"
-            testID="overlay-drag-handle"
-            style={[styles.dragHandle, { borderColor: theme.border }]}
-          >
-            <Text style={[styles.dragHandleText, { color: theme.textMuted }]}>
-              ::::
-            </Text>
-          </View>
+      <View
+        {...webDragProps}
+        accessibilityLabel="オーバーレイを移動"
+        accessibilityRole="button"
+        testID="overlay-drag-region"
+        style={[styles.opacityBar, { borderBottomColor: theme.border }]}
+      >
+        <View {...stopHeaderDragProps} style={styles.leftControls}>
           <OpacityStepper
             value={normalOpacity}
             onDecrease={() => handleNormalOpacityChange(-OPACITY_STEP)}
@@ -248,6 +251,7 @@ export function OverlayApp() {
           />
         </View>
         <TouchableOpacity
+          {...stopHeaderDragProps}
           accessibilityLabel="新規メモ"
           accessibilityRole="button"
           testID="overlay-new-memo-button"
@@ -317,6 +321,11 @@ function OpacityStepper({
   buttonColor,
   testIDPrefix,
 }: OpacityStepperProps) {
+  const activeSegments = Math.max(
+    1,
+    Math.round((value / 100) * OPACITY_SEGMENTS),
+  )
+
   return (
     <View
       style={[
@@ -333,10 +342,24 @@ function OpacityStepper({
       >
         <Text style={[styles.stepButtonText, { color: textColor }]}>{'<'}</Text>
       </TouchableOpacity>
-      <View style={styles.stepperValue}>
-        <Text style={[styles.opacityValue, { color: textColor }]}>
-          {value}%
-        </Text>
+      <View
+        accessibilityLabel={`通常透明度 ${value}%`}
+        style={styles.opacityMeter}
+        testID="normal-opacity-meter"
+      >
+        {Array.from({ length: OPACITY_SEGMENTS }).map((_, index) => (
+          <View
+            key={index}
+            style={[
+              styles.opacitySegment,
+              {
+                backgroundColor:
+                  index < activeSegments ? textColor : borderColor,
+                opacity: index < activeSegments ? 0.9 : 0.45,
+              },
+            ]}
+          />
+        ))}
       </View>
       <TouchableOpacity
         accessibilityLabel="通常透明度を上げる"
@@ -363,6 +386,7 @@ const styles = StyleSheet.create({
   opacityBar: {
     alignItems: 'center',
     borderBottomWidth: StyleSheet.hairlineWidth,
+    cursor: Platform.OS === 'web' ? ('move' as any) : undefined,
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 6,
@@ -372,20 +396,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     gap: 6,
-  },
-  dragHandle: {
-    alignItems: 'center',
-    borderRadius: 8,
-    borderWidth: StyleSheet.hairlineWidth,
-    cursor: Platform.OS === 'web' ? ('move' as any) : undefined,
-    justifyContent: 'center',
-    minHeight: 36,
-    width: 56,
-  },
-  dragHandleText: {
-    fontSize: 18,
-    fontWeight: '800',
-    letterSpacing: 1,
   },
   newButton: {
     alignItems: 'center',
@@ -419,14 +429,16 @@ const styles = StyleSheet.create({
     minHeight: 36,
     overflow: 'hidden',
   },
-  stepperValue: {
+  opacityMeter: {
     alignItems: 'center',
-    minWidth: 48,
-    paddingHorizontal: 4,
+    flexDirection: 'row',
+    gap: 3,
+    justifyContent: 'center',
+    minWidth: 50,
   },
-  opacityValue: {
-    fontSize: 12,
-    fontWeight: '800',
-    lineHeight: 14,
+  opacitySegment: {
+    borderRadius: 999,
+    height: 14,
+    width: 5,
   },
 })
