@@ -211,12 +211,6 @@ export function OverlayApp() {
           'data-tauri-drag-region': true,
         } as any)
       : {}
-  const stopHeaderDragProps =
-    Platform.OS === 'web'
-      ? ({
-          onMouseDown: (event: MouseEvent) => event.stopPropagation(),
-        } as any)
-      : {}
   const activeOpacity = (isHovered ? HOVER_OPACITY : normalOpacity) / 100
   const panelColor = theme.background
   const surfaceColor = theme.surface
@@ -232,14 +226,8 @@ export function OverlayApp() {
         },
       ]}
     >
-      <View
-        {...webDragProps}
-        accessibilityLabel="オーバーレイを移動"
-        accessibilityRole="button"
-        testID="overlay-drag-region"
-        style={[styles.opacityBar, { borderBottomColor: theme.border }]}
-      >
-        <View {...stopHeaderDragProps} style={styles.leftControls}>
+      <View style={[styles.opacityBar, { borderBottomColor: theme.border }]}>
+        <View style={styles.leftControls}>
           <OpacityStepper
             value={normalOpacity}
             onDecrease={() => handleNormalOpacityChange(-OPACITY_STEP)}
@@ -250,8 +238,14 @@ export function OverlayApp() {
             testIDPrefix="normal-opacity"
           />
         </View>
+        <View
+          {...webDragProps}
+          accessibilityLabel="オーバーレイを移動"
+          accessibilityRole="button"
+          testID="overlay-drag-region"
+          style={styles.headerDragRegion}
+        />
         <TouchableOpacity
-          {...stopHeaderDragProps}
           accessibilityLabel="新規メモ"
           accessibilityRole="button"
           testID="overlay-new-memo-button"
@@ -386,11 +380,15 @@ const styles = StyleSheet.create({
   opacityBar: {
     alignItems: 'center',
     borderBottomWidth: StyleSheet.hairlineWidth,
-    cursor: Platform.OS === 'web' ? ('move' as any) : undefined,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    gap: 8,
     paddingHorizontal: 6,
     paddingVertical: 6,
+  },
+  headerDragRegion: {
+    cursor: Platform.OS === 'web' ? ('move' as any) : undefined,
+    flex: 1,
+    minHeight: 36,
   },
   leftControls: {
     alignItems: 'center',

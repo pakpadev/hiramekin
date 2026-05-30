@@ -8,7 +8,6 @@ import {
 } from 'react-native'
 import { getTheme } from '@/theme'
 import { formatDateTime, formatTime, formatToday } from '@/utils/dateTime'
-import { isTauri } from '@/utils/tauri'
 
 interface KeyboardToolbarProps {
   onInsert: (text: string) => void
@@ -48,6 +47,7 @@ export function KeyboardToolbar({
   ]
   const labelStyle = [styles.label, { color: theme.textBody }]
   const activeLabelStyle = [styles.label, { color: theme.accent }]
+  const shouldShowMic = forceShowMic || onMic !== null
   const insertDateTime = () => {
     setShowTimeMenu(false)
     onInsert(formatDateTime())
@@ -151,7 +151,7 @@ export function KeyboardToolbar({
         >
           <Text style={labelStyle}>議事録</Text>
         </TouchableOpacity>
-        {forceShowMic || !isTauri() ? (
+        {shouldShowMic ? (
           <TouchableOpacity
             accessibilityRole="button"
             testID="mic-button"

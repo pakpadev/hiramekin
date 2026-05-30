@@ -80,4 +80,10 @@ describe('KeyboardToolbar', () => {
 
     expect(onMic).toHaveBeenCalled()
   })
+
+  it('onMic が null の場合はマイクボタンを表示しない', () => {
+    render(<KeyboardToolbar onInsert={jest.fn()} onMic={null} />)
+
+    expect(screen.queryByTestId('mic-button')).toBeNull()
+  })
 })
