@@ -6,7 +6,7 @@
     <title>Hiramekin — ダウンロード</title>
     <meta
       name="description"
-      content="Hiramekin — Android 向けメモアプリの無料ダウンロード"
+      content="Hiramekin — ひらめきをすぐ残すためのメモアプリ"
     />
     <link rel="icon" href="/icon.png" />
     <style>
@@ -15,18 +15,9 @@
         --surface: #1a1a1a;
         --text: #ffffff;
         --body: #cccccc;
-        --muted: #555555;
+        --muted: #777777;
         --accent: #00e5ff;
         --border: #2a2a2a;
-      }
-
-      @keyframes shimmer {
-        0% {
-          background-position: 100% 0;
-        }
-        100% {
-          background-position: -100% 0;
-        }
       }
 
       * {
@@ -43,208 +34,203 @@
       }
 
       main {
-        width: min(560px, calc(100% - 32px));
+        width: min(720px, calc(100% - 32px));
         margin: 0 auto;
-        padding: 56px 0 40px;
+        padding: 48px 0 40px;
       }
 
       .hero {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-        padding-bottom: 32px;
+        display: grid;
+        gap: 14px;
+        padding-bottom: 28px;
         border-bottom: 1px solid var(--border);
-        text-align: center;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
       }
 
       .app-icon {
-        width: 88px;
-        height: 88px;
-        border-radius: 20px;
-        box-shadow: 0 0 32px rgba(0, 229, 255, 0.2);
+        width: 72px;
+        height: 72px;
+        border-radius: 16px;
+        box-shadow: 0 0 28px rgba(0, 229, 255, 0.2);
       }
 
-      .app-name {
+      h1 {
         margin: 0;
         font-size: 2rem;
         font-weight: 800;
         letter-spacing: 0;
       }
 
-      .dl-wrap {
-        position: relative;
-        width: 100%;
-        max-width: 320px;
-        margin-top: 8px;
-        padding: 2px;
-        border-radius: 10px;
-        background: linear-gradient(90deg, #111111, #00e5ff, #b2f0ff, #111111);
-        background-size: 300% 100%;
-        animation: shimmer 2.4s linear infinite;
+      .lead {
+        margin: 0;
+        color: var(--body);
+        font-size: 0.98rem;
       }
 
-      .dl-btn {
-        display: block;
+      .download-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 16px;
+      }
+
+      .download-card {
+        display: grid;
+        gap: 8px;
+        padding: 16px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--surface);
+      }
+
+      .download-card h2 {
+        margin: 0;
+        font-size: 1rem;
+      }
+
+      .download-card p {
+        margin: 0;
+        color: var(--body);
+        font-size: 0.86rem;
+      }
+
+      .download-card a,
+      .pwa-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        border: 1px solid var(--accent);
         border-radius: 8px;
         background: var(--accent);
         color: #000000;
-        font-size: 1rem;
+        font-size: 0.92rem;
         font-weight: 800;
-        padding: 14px;
-        text-align: center;
         text-decoration: none;
-        transition: opacity 0.15s;
       }
 
-      .dl-btn:hover {
-        opacity: 0.88;
-      }
-
-      .dl-meta,
-      footer {
-        color: var(--muted);
-        font-size: 0.8rem;
-      }
-
-      .faq {
-        margin-top: 36px;
-      }
-
-      .faq-title {
-        margin: 0 0 14px;
-        color: var(--muted);
-        font-size: 0.72rem;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-      }
-
-      .faq-item {
-        padding: 14px 0;
-        border-bottom: 1px solid var(--border);
-      }
-
-      .faq-item:first-of-type {
-        border-top: 1px solid var(--border);
-      }
-
-      .faq-q {
-        margin: 0 0 6px;
-        color: var(--text);
-        font-size: 0.95rem;
-        font-weight: 600;
-      }
-
-      .faq-a {
-        margin: 0;
-        color: var(--body);
-        font-size: 0.88rem;
-      }
-
-      .faq-a strong {
+      .secondary a,
+      .pwa-button {
+        background: transparent;
         color: var(--accent);
       }
 
-      footer {
-        margin-top: 28px;
-        text-align: center;
-      }
-
-      .pwa-section {
+      .section {
         margin-top: 32px;
-        padding-top: 28px;
-        border-top: 1px solid var(--border);
       }
 
-      .pwa-title {
-        margin: 0 0 10px;
+      .section-title {
+        margin: 0 0 12px;
         color: var(--muted);
         font-size: 0.72rem;
-        font-weight: 700;
+        font-weight: 800;
         letter-spacing: 0.08em;
         text-transform: uppercase;
       }
 
-      .pwa-desc {
-        margin: 0 0 14px;
+      .feature-list,
+      .notes {
+        margin: 0;
+        padding-left: 20px;
         color: var(--body);
-        font-size: 0.88rem;
+        font-size: 0.9rem;
+      }
+
+      .feature-list li,
+      .notes li {
+        margin: 6px 0;
       }
 
       #pwa-install-btn {
         display: none;
         width: 100%;
-        padding: 12px;
-        border: 1px solid var(--accent);
-        border-radius: 8px;
-        background: transparent;
-        color: var(--accent);
-        font-size: 0.95rem;
-        font-weight: 700;
         cursor: pointer;
-        transition: background 0.15s;
       }
 
-      #pwa-install-btn:hover {
-        background: rgba(0, 229, 255, 0.08);
-      }
-
-      #pwa-unavailable {
+      #pwa-unavailable,
+      footer {
         color: var(--muted);
         font-size: 0.82rem;
+      }
+
+      footer {
+        margin-top: 32px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+        text-align: center;
+      }
+
+      @media (max-width: 640px) {
+        .download-grid {
+          grid-template-columns: 1fr;
+        }
       }
     </style>
   </head>
   <body>
     <main>
       <section class="hero">
-        <img class="app-icon" src="/icon.png" alt="Hiramekin アイコン" />
-        <h1 class="app-name">Hiramekin</h1>
-        <div class="dl-wrap">
-          <a
-            class="dl-btn"
-            href="https://github.com/pakpadev/hiramekin/releases/download/v1.0.9-beta/hiramekin-v1.0.9-beta.apk"
-          >
-            無料でダウンロード
-          </a>
+        <div class="brand">
+          <img class="app-icon" src="/icon.png" alt="Hiramekin アイコン" />
+          <div>
+            <h1>Hiramekin</h1>
+            <p class="lead">ひらめきを、思いついた瞬間に残す。</p>
+          </div>
         </div>
-        <p class="dl-meta">58 MB · Android 6.0 以上</p>
+        <p class="lead">
+          デスクトップ版では、システムトレイ、グローバルショートカット、オーバーレイメモ、自動起動、ファイルエクスポートを利用できます。
+        </p>
       </section>
 
-      <section class="faq" aria-label="よくある質問">
-        <p class="faq-title">よくある質問</p>
-
-        <div class="faq-item">
-          <p class="faq-q">「提供元不明」と出た — 大丈夫?</p>
-          <p class="faq-a">
-            Play Store 以外からインストールするアプリには<strong>必ず出る確認画面</strong>です。「この提供元を許可」または「許可」を選ぶと進められます。
-          </p>
-        </div>
-
-        <div class="faq-item">
-          <p class="faq-q">インストールできない</p>
-          <p class="faq-a">
-            設定 → セキュリティ →「不明なアプリのインストール」でお使いのブラウザを許可してください。
-          </p>
-        </div>
-
-        <div class="faq-item">
-          <p class="faq-q">Play Store にないの?</p>
-          <p class="faq-a">
-            現在ベータ版のため直接配布しています。正式版は Play Store での公開を予定しています。
-          </p>
+      <section class="section" aria-label="ダウンロード">
+        <p class="section-title">Download</p>
+        <div class="download-grid">
+          <div class="download-card">
+            <h2>Windows / macOS</h2>
+            <p>Windows の .exe / .msi と macOS の .dmg は GitHub Releases からダウンロードできます。</p>
+            <a href="https://github.com/pakpadev/hiramekin/releases">GitHub Releases を開く</a>
+          </div>
+          <div class="download-card secondary">
+            <h2>Android beta</h2>
+            <p>Android 6.0 以上向けの直接配布APKです。</p>
+            <a href="https://github.com/pakpadev/hiramekin/releases/download/v1.0.9-beta/hiramekin-v1.0.9-beta.apk">APKをダウンロード</a>
+          </div>
         </div>
       </section>
 
-      <section class="pwa-section">
-        <p class="pwa-title">PC / ブラウザからも使う</p>
-        <p class="pwa-desc">Chrome / Edge でこのページを開くと、ホーム画面やデスクトップにアプリとして追加できます。</p>
-        <button id="pwa-install-btn" type="button">ホーム画面に追加</button>
+      <section class="section">
+        <p class="section-title">Desktop Features</p>
+        <ul class="feature-list">
+          <li>トレイ常駐と hide-on-close</li>
+          <li>グローバルショートカット: Windows は Ctrl + Shift + Space、macOS は Command + Shift + Space</li>
+          <li>通常画面と同じタイム、計算、議事録、マイクが使えるオーバーレイ</li>
+          <li>オーバーレイの自動保存、新規メモ作成、透明度調整、ドラッグ移動</li>
+          <li>自動起動、ファイルエクスポート、自動更新</li>
+        </ul>
+      </section>
+
+      <section class="section">
+        <p class="section-title">Known Notes</p>
+        <ul class="notes">
+          <li>macOSでは完全なネイティブ透明ウィンドウではなく、React側の透明度でオーバーレイを表現します。</li>
+          <li>マイクやショートカットはOS側の権限許可が必要になる場合があります。</li>
+          <li>Android APKでは提供元不明アプリの確認画面が表示される場合があります。</li>
+        </ul>
+      </section>
+
+      <section class="section">
+        <p class="section-title">Browser Install</p>
+        <p class="lead">Chrome / Edge では、ブラウザ版をホーム画面やデスクトップに追加できます。</p>
+        <button id="pwa-install-btn" class="pwa-button" type="button">ホーム画面に追加</button>
         <p id="pwa-unavailable">お使いのブラウザはインストールに対応していません。</p>
       </section>
 
-      <footer>Hiramekin for Android</footer>
+      <footer>Hiramekin</footer>
     </main>
     <script>
       let deferredPrompt = null;
@@ -254,7 +240,7 @@
       window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
-        btn.style.display = 'block';
+        btn.style.display = 'inline-flex';
         unavailable.style.display = 'none';
       });
 

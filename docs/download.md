@@ -1,53 +1,87 @@
-# Hiramekin APK Download Plan
+# Hiramekin Download Plan
 
 ## 方針
 
-v1 は Google Play ではなく、Android APK の直接配布で実機検証を進める。
+Hiramekin の配布元は GitHub Releases に統一する。
 
-- 配布対象: Android
-- 配布形式: APK
-- 配布単位: GitHub Releases のアセット
+- デスクトップ版: GitHub Releases の Windows / macOS インストーラー
+- Android beta: 既存の GitHub Releases APK
 - 配布ページ: `public/download.html`
+- デスクトップ版タグ: `desktop-v1.0.9`
+- Android betaタグ: `v1.0.9-beta`
+
+## デスクトップ版
+
+### 対象
+
+- Windows 10 / 11
+- macOS
+
+### 配布形式
+
+- Windows: `.exe` / `.msi`
+- macOS: `.dmg`
+- 自動更新用: `.app.tar.gz` と `.sig`
+
+### 配布URL
+
+Desktop Build の成果物を GitHub Release に添付後、以下のReleaseページから配布する。
+
+```text
+https://github.com/pakpadev/hiramekin/releases
+```
+
+ダウンロードページでは、壊れた直リンクを避けるため、Releaseページへ誘導する。
+最終的なasset名が確定したら、必要に応じてOS別の直接リンクへ差し替える。
+
+## Android beta
+
+- 配布形式: APK
 - バージョン: `v1.0.9-beta`
 - APK名: `hiramekin-v1.0.9-beta.apk`
-
-## APK情報
-
-- ローカル生成元: `android/app/build/outputs/apk/release/app-release.apk`
-- ローカル配布ステージ: `artifacts/releases/hiramekin-v1.0.9-beta.apk`
 - 配布URL: `https://github.com/pakpadev/hiramekin/releases/download/v1.0.9-beta/hiramekin-v1.0.9-beta.apk`
 - サイズ: 61,113,544 bytes
 - 表示サイズ: 58 MB
 - SHA-256: `1EAFC8B559AC57CEC83256DF505D8736314B10D703D0E25C070D738EF09866BF`
 
-## リリース作業
+## Desktop Build 手順
 
-1. Docker内で release APK をビルドする。
+1. GitHub Actions の `Desktop Build` を手動実行する。
+1. `hiramekin-windows-bundle` と `hiramekin-macos-bundle` をArtifactsから取得する。
+1. Windows / macOS 実機で以下を確認する。
+   - 起動
+   - アプリアイコン
+   - 通常画面のマイク
+   - システムトレイ
+   - hide-on-close
+   - グローバルショートカット
+   - オーバーレイ表示 / ドラッグ / 透明度調整
+   - 自動起動設定
+   - ファイルエクスポート
+1. GitHub Releases に `desktop-v1.0.9` を作成する。
+1. Artifacts内のインストーラー、自動更新用アーカイブ、署名ファイルをRelease assetsとしてアップロードする。
+1. `public/download.html` からReleaseページへ遷移できることを確認する。
 
-   ```bash
-   docker compose exec app bash -lc "cd android && ./gradlew assembleRelease --no-daemon --max-workers=1"
-   ```
+## 自動アップデート
 
-1. APK をリリース用ファイル名でステージする。
+Tauri updater は `public/latest.json` を参照する。
 
-   ```powershell
-   Copy-Item -LiteralPath android/app/build/outputs/apk/release/app-release.apk -Destination artifacts/releases/hiramekin-v1.0.9-beta.apk -Force
-   Get-FileHash artifacts/releases/hiramekin-v1.0.9-beta.apk -Algorithm SHA256
-   ```
+署名付きアップデートを有効にするには、GitHub Actions のビルド時に以下のSecretsが必要。
 
-1. GitHub Releases に `v1.0.9-beta` を作成し、APKをアップロードする。
+- `TAURI_SIGNING_PRIVATE_KEY`
+- `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`（必要な場合）
 
-   ```powershell
-   .\scripts\publish-github-release.ps1 -Tag "v1.0.9-beta" -ApkPath "artifacts/releases/hiramekin-v1.0.9-beta.apk" -ReleaseNotesPath "docs/release/v1.0.9-beta.md"
-   ```
+Release assets と `.sig` が確定した後、`public/latest.json` の `platforms` にURLと署名を入れる。
 
-1. `https://github.com/pakpadev/hiramekin/releases/download/v1.0.9-beta/hiramekin-v1.0.9-beta.apk` が直接ダウンロードできることを確認する。
-1. `https://<site-host>/download.html` からAPKダウンロードできることを確認する。
+注意:
+
+- 現在のアプリバージョンは `1.0.9`。
+- `latest.json` に `1.0.9` を指定しても同一バージョンなので更新通知は出ない。
+- 自動アップデート検証は `1.0.10` 以降のReleaseで行う。
+- 不正なURLや署名を入れるとアップデーターが失敗するため、Release前は `platforms: {}` のままにする。
 
 ## 注意事項
 
-- 現在の release APK は debug signing config で署名している。
-- v1 の smoke test と直接配布用であり、Google Play 提出用ではない。
-- 自動更新はないため、新しいAPKを出す場合はユーザーが再ダウンロードする。
-- Android は提供元不明アプリのインストール警告を表示する場合がある。
-- iOS はAPK配布できないため、この導線の対象外。
+- macOSではネイティブウィンドウの完全透明化を使っていないため、オーバーレイの透過はReact UI側の表現になる。
+- macOSのショートカットやマイクは、OS側の権限許可が必要になる場合がある。
+- Android APK は debug signing config 署名のため、Google Play 提出用ではない。

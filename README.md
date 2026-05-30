@@ -2,6 +2,44 @@
 
 閃筋 is an Expo bare workflow app for the fastest possible idea capture.
 
+## Desktop App
+
+Hiramekin supports Windows and macOS desktop builds through Tauri.
+
+Desktop features:
+
+- System tray with hide-on-close behavior
+- Global shortcut for the overlay
+  - Windows / Linux: `Ctrl + Shift + Space`
+  - macOS: `Command + Shift + Space`
+- Overlay memo window with time insertion, calculation preview, meeting template, microphone input, autosave, opacity control, and new memo creation
+- Auto-start setting
+- Markdown / JSON / CSV export
+- Tauri updater support through signed GitHub Release assets
+- Desktop app icon using the single character `閃`
+
+Build desktop bundles through GitHub Actions:
+
+```text
+Actions → Desktop Build → Run workflow
+```
+
+Release notes:
+
+```text
+docs/release/v1.0.9-desktop.md
+```
+
+Download page:
+
+```text
+public/download.html
+```
+
+Known desktop limitation:
+
+- On macOS, native full-window transparency is disabled for build stability. The overlay uses React-side opacity for the translucent UI effect.
+
 ## APK Download
 
 The Android v1.0.9 beta APK is distributed through GitHub Releases and linked
