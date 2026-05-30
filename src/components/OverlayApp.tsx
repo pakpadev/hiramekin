@@ -233,7 +233,7 @@ export function OverlayApp() {
           style={[styles.dragHandle, { borderColor: theme.border }]}
         >
           <Text style={[styles.dragHandleText, { color: theme.textMuted }]}>
-            ::
+            ::::
           </Text>
         </View>
         <OpacityStepper
@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
     cursor: Platform.OS === 'web' ? ('move' as any) : undefined,
     justifyContent: 'center',
     minHeight: 36,
-    width: 40,
+    width: 56,
   },
   dragHandleText: {
     fontSize: 18,
