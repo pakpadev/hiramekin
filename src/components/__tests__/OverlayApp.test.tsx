@@ -41,7 +41,7 @@ describe('OverlayApp', () => {
   })
 
   it('renders the regular input tools without a save button', () => {
-    const { getByPlaceholderText, getByText, queryByText } = render(<OverlayApp />)
+    const { getByPlaceholderText, getByTestId, getByText, queryByText } = render(<OverlayApp />)
 
     expect(getByPlaceholderText('メモを書く　　100+200 で計算できます')).toBeTruthy()
     expect(getByText('タイム ▾')).toBeTruthy()
@@ -49,7 +49,7 @@ describe('OverlayApp', () => {
     expect(getByText('議事録')).toBeTruthy()
     expect(getByText('マイク')).toBeTruthy()
     expect(getByText('45%')).toBeTruthy()
-    expect(getByText('新規')).toBeTruthy()
+    expect(getByTestId('overlay-new-memo-button')).toBeTruthy()
     expect(queryByText('保存')).toBeNull()
   })
 
@@ -88,11 +88,11 @@ describe('OverlayApp', () => {
 
   it('can start a new memo without a save button', async () => {
     jest.useFakeTimers()
-    const { getByPlaceholderText, getByText } = render(<OverlayApp />)
+    const { getByPlaceholderText, getByTestId } = render(<OverlayApp />)
     const input = getByPlaceholderText('メモを書く　　100+200 で計算できます')
 
     fireEvent.changeText(input, '1つ目')
-    fireEvent.press(getByText('新規'))
+    fireEvent.press(getByTestId('overlay-new-memo-button'))
 
     await waitFor(() => {
       expect(mockSave).toHaveBeenCalled()

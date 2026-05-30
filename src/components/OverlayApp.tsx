@@ -225,28 +225,32 @@ export function OverlayApp() {
       ]}
     >
       <View style={[styles.opacityBar, { borderBottomColor: theme.border }]}>
-        <View
-          {...webDragProps}
-          accessibilityLabel="オーバーレイを移動"
-          accessibilityRole="button"
-          testID="overlay-drag-handle"
-          style={[styles.dragHandle, { borderColor: theme.border }]}
-        >
-          <Text style={[styles.dragHandleText, { color: theme.textMuted }]}>
-            ::::
-          </Text>
+        <View style={styles.leftControls}>
+          <View
+            {...webDragProps}
+            accessibilityLabel="オーバーレイを移動"
+            accessibilityRole="button"
+            testID="overlay-drag-handle"
+            style={[styles.dragHandle, { borderColor: theme.border }]}
+          >
+            <Text style={[styles.dragHandleText, { color: theme.textMuted }]}>
+              ::::
+            </Text>
+          </View>
+          <OpacityStepper
+            value={normalOpacity}
+            onDecrease={() => handleNormalOpacityChange(-OPACITY_STEP)}
+            onIncrease={() => handleNormalOpacityChange(OPACITY_STEP)}
+            textColor={theme.textBody}
+            borderColor={theme.border}
+            buttonColor={surfaceColor}
+            testIDPrefix="normal-opacity"
+          />
         </View>
-        <OpacityStepper
-          value={normalOpacity}
-          onDecrease={() => handleNormalOpacityChange(-OPACITY_STEP)}
-          onIncrease={() => handleNormalOpacityChange(OPACITY_STEP)}
-          textColor={theme.textBody}
-          borderColor={theme.border}
-          buttonColor={surfaceColor}
-          testIDPrefix="normal-opacity"
-        />
         <TouchableOpacity
+          accessibilityLabel="新規メモ"
           accessibilityRole="button"
+          testID="overlay-new-memo-button"
           style={[
             styles.newButton,
             {
@@ -255,7 +259,7 @@ export function OverlayApp() {
           ]}
           onPress={handleNewMemo}
         >
-          <Text style={styles.newButtonText}>新規</Text>
+          <Text style={styles.newButtonText}>＋</Text>
         </TouchableOpacity>
       </View>
 
@@ -360,9 +364,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderBottomWidth: StyleSheet.hairlineWidth,
     flexDirection: 'row',
-    gap: 6,
+    justifyContent: 'space-between',
     paddingHorizontal: 6,
     paddingVertical: 6,
+  },
+  leftControls: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 6,
   },
   dragHandle: {
     alignItems: 'center',
@@ -383,13 +392,13 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     justifyContent: 'center',
     minHeight: 36,
-    minWidth: 44,
-    paddingHorizontal: 8,
+    width: 40,
   },
   newButtonText: {
     color: '#000000',
-    fontSize: 13,
-    fontWeight: '700',
+    fontSize: 24,
+    fontWeight: '600',
+    lineHeight: 28,
   },
   stepButton: {
     alignItems: 'center',
