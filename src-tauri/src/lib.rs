@@ -187,8 +187,8 @@ fn setup_overlay(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
     let monitor_size = monitor.size();
     let scale = monitor.scale_factor();
 
-    let overlay_width = 320.0;
-    let overlay_height = 200.0;
+    let overlay_width = 420.0;
+    let overlay_height = 360.0;
     let x = (monitor_size.width as f64 / scale) - overlay_width - 20.0;
     let y = (monitor_size.height as f64 / scale) - overlay_height - 60.0;
 

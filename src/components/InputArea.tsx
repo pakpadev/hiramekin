@@ -13,6 +13,7 @@ interface InputAreaProps {
   insertRef?: MutableRefObject<((text: string) => void) | null>
   focusRef?: MutableRefObject<(() => void) | null>
   isDark?: boolean
+  surfaceColor?: string
 }
 
 export function InputArea({
@@ -23,6 +24,7 @@ export function InputArea({
   insertRef,
   focusRef,
   isDark = false,
+  surfaceColor,
 }: InputAreaProps) {
   const inputRef = useRef<TextInput>(null)
   const selectionRef = useRef({ start: 0, end: 0 })
@@ -59,7 +61,11 @@ export function InputArea({
 
   return (
     <View style={styles.wrapper}>
-      <ShimmerBorder isDark={isDark} borderRadius={10}>
+      <ShimmerBorder
+        isDark={isDark}
+        borderRadius={10}
+        backgroundColor={surfaceColor}
+      >
         <View style={styles.innerPad}>
           <TextInput
             ref={inputRef}

@@ -14,12 +14,18 @@ interface KeyboardToolbarProps {
   onInsert: (text: string) => void
   onMic: (() => void) | null
   isDark?: boolean
+  forceShowMic?: boolean
+  backgroundColor?: string
+  buttonBackgroundColor?: string
 }
 
 export function KeyboardToolbar({
   onInsert,
   onMic,
   isDark = false,
+  forceShowMic = false,
+  backgroundColor,
+  buttonBackgroundColor,
 }: KeyboardToolbarProps) {
   const [showTimeMenu, setShowTimeMenu] = useState(false)
   const theme = getTheme(isDark)
@@ -27,6 +33,7 @@ export function KeyboardToolbar({
     styles.button,
     {
       backgroundColor: theme.surface,
+      ...(buttonBackgroundColor ? { backgroundColor: buttonBackgroundColor } : {}),
       borderColor: theme.border,
     },
   ]
@@ -83,6 +90,7 @@ export function KeyboardToolbar({
         styles.container,
         {
           backgroundColor: theme.background,
+          ...(backgroundColor ? { backgroundColor } : {}),
           borderTopColor: theme.border,
         },
       ]}
@@ -143,7 +151,7 @@ export function KeyboardToolbar({
         >
           <Text style={labelStyle}>議事録</Text>
         </TouchableOpacity>
-        {!isTauri() ? (
+        {forceShowMic || !isTauri() ? (
           <TouchableOpacity
             accessibilityRole="button"
             testID="mic-button"

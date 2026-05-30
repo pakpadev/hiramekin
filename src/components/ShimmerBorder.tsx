@@ -8,6 +8,7 @@ interface ShimmerBorderProps {
   isDark?: boolean
   index?: number
   borderRadius?: number
+  backgroundColor?: string
 }
 
 const SHIMMER_WIDTH = 600
@@ -19,8 +20,10 @@ export function ShimmerBorder({
   isDark = false,
   index = 0,
   borderRadius = 10,
+  backgroundColor,
 }: ShimmerBorderProps) {
   const theme = getTheme(isDark)
+  const surfaceColor = backgroundColor ?? theme.surface
   const translateX = useRef(new Animated.Value(-SHIMMER_WIDTH)).current
 
   useEffect(() => {
@@ -51,7 +54,7 @@ export function ShimmerBorder({
         styles.outer,
         {
           borderRadius,
-          backgroundColor: theme.surface,
+          backgroundColor: surfaceColor,
           padding: 1.5,
         },
       ]}
@@ -69,7 +72,7 @@ export function ShimmerBorder({
       <View
         style={{
           borderRadius: borderRadius - 1.5,
-          backgroundColor: theme.surface,
+          backgroundColor: surfaceColor,
           overflow: 'hidden',
         }}
       >
