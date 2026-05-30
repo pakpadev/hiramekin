@@ -342,31 +342,35 @@ function OpacityStepper({
   testIDPrefix,
 }: OpacityStepperProps) {
   return (
-    <View style={styles.stepper}>
-      <Text style={[styles.opacityLabel, { color: textColor }]}>
-        {label} {value}%
-      </Text>
+    <View
+      style={[
+        styles.stepper,
+        { backgroundColor: buttonColor, borderColor },
+      ]}
+    >
       <TouchableOpacity
         accessibilityLabel={`${label}透明度を下げる`}
         accessibilityRole="button"
         onPress={onDecrease}
         testID={`${testIDPrefix}-decrease`}
-        style={[
-          styles.stepButton,
-          { backgroundColor: buttonColor, borderColor },
-        ]}
+        style={styles.stepButton}
       >
         <Text style={[styles.stepButtonText, { color: textColor }]}>{'<'}</Text>
       </TouchableOpacity>
+      <View style={styles.stepperValue}>
+        <Text style={[styles.opacityLabel, { color: textColor }]}>
+          {label}
+        </Text>
+        <Text style={[styles.opacityValue, { color: textColor }]}>
+          {value}%
+        </Text>
+      </View>
       <TouchableOpacity
         accessibilityLabel={`${label}透明度を上げる`}
         accessibilityRole="button"
         onPress={onIncrease}
         testID={`${testIDPrefix}-increase`}
-        style={[
-          styles.stepButton,
-          { backgroundColor: buttonColor, borderColor },
-        ]}
+        style={styles.stepButton}
       >
         <Text style={[styles.stepButtonText, { color: textColor }]}>{'>'}</Text>
       </TouchableOpacity>
@@ -388,34 +392,35 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     flexDirection: 'row',
     gap: 6,
-    paddingHorizontal: 8,
+    paddingHorizontal: 6,
     paddingVertical: 6,
   },
   opacityLabel: {
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: '700',
-    minWidth: 64,
+    lineHeight: 12,
   },
   dragHandle: {
     alignItems: 'center',
-    borderRadius: 6,
+    borderRadius: 8,
     borderWidth: StyleSheet.hairlineWidth,
     cursor: Platform.OS === 'web' ? ('move' as any) : undefined,
     justifyContent: 'center',
-    minHeight: 32,
-    width: 28,
+    minHeight: 36,
+    width: 40,
   },
   dragHandleText: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '800',
+    letterSpacing: 1,
   },
   newButton: {
     alignItems: 'center',
-    borderRadius: 6,
+    borderRadius: 8,
     justifyContent: 'center',
-    minHeight: 32,
-    minWidth: 48,
-    paddingHorizontal: 10,
+    minHeight: 36,
+    minWidth: 44,
+    paddingHorizontal: 8,
   },
   newButtonText: {
     color: '#000000',
@@ -424,20 +429,31 @@ const styles = StyleSheet.create({
   },
   stepButton: {
     alignItems: 'center',
-    borderRadius: 6,
-    borderWidth: StyleSheet.hairlineWidth,
     justifyContent: 'center',
-    minHeight: 32,
-    width: 28,
+    minHeight: 34,
+    width: 26,
   },
   stepButtonText: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '800',
-    lineHeight: 20,
+    lineHeight: 18,
   },
   stepper: {
     alignItems: 'center',
+    borderRadius: 8,
+    borderWidth: StyleSheet.hairlineWidth,
     flexDirection: 'row',
-    gap: 4,
+    minHeight: 36,
+    overflow: 'hidden',
+  },
+  stepperValue: {
+    alignItems: 'center',
+    minWidth: 56,
+    paddingHorizontal: 2,
+  },
+  opacityValue: {
+    fontSize: 12,
+    fontWeight: '800',
+    lineHeight: 14,
   },
 })
