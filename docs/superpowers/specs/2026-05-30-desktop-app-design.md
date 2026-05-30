@@ -1,160 +1,160 @@
-# Desktop App Design — Hiramekin
+# デスクトップアプリ設計 — Hiramekin
 
-**Date:** 2026-05-30
-**Status:** Approved
-
----
-
-## Overview
-
-Wrap the existing Expo web build in Tauri to produce native desktop applications for Windows and macOS. The desktop app distributes as a standard installer (.exe / .dmg) and adds desktop-specific capabilities not available in the web or mobile versions.
-
-Initial release ships without code signing. Mac code signing (Apple Developer Program, $99/year) and Windows code signing (Microsoft Trusted Signing, $9.99/month) can be added later when general distribution is required.
+**日付:** 2026-05-30
+**ステータス:** 承認済み
 
 ---
 
-## Architecture
+## 概要
+
+既存のExpo webビルドをTauriでラップし、WindowsおよびmacOS向けのネイティブデスクトップアプリを作成する。標準のインストーラー（.exe / .dmg）で配布し、web・モバイル版では実現できないデスクトップ固有の機能を追加する。
+
+初回リリースはコード署名なしで行う。一般配布が必要になった時点で、Mac（Apple Developer Program、$99/年）およびWindows（Microsoft Trusted Signing、$9.99/月）のコード署名を追加する。
+
+---
+
+## アーキテクチャ
 
 ```text
 hiramekin/
-├── (existing Expo/React Native code)
+├── （既存のExpo/React Nativeコード）
 ├── src-tauri/
 │   ├── src/
-│   │   └── main.rs          — window management, tray, shortcuts, IPC handlers
-│   ├── icons/               — app icons for all platforms
-│   └── tauri.conf.json      — Tauri configuration
-└── dist/                    — expo export --platform web output (Tauri loads this)
+│   │   └── main.rs          — ウィンドウ管理、トレイ、ショートカット、IPCハンドラー
+│   ├── icons/               — 各プラットフォーム向けアプリアイコン
+│   └── tauri.conf.json      — Tauri設定ファイル
+└── dist/                    — expo export --platform web の出力（Tauriが読み込む）
 ```
 
-**Build flow:**
+**ビルドフロー:**
 
 ```sh
-expo export --platform web   # outputs to dist/
-tauri build                  # outputs .exe (Windows) / .dmg (macOS)
+expo export --platform web   # dist/ に出力
+tauri build                  # .exe（Windows）/ .dmg（macOS）を出力
 ```
 
-Tauri loads `dist/` as a local file server; no internet connection required at runtime. The WebView used is the OS native engine (WebView2 on Windows, WKWebView on macOS), so no Chromium is bundled. Binary size is approximately 10–20 MB.
+Tauriは `dist/` をローカルファイルサーバーとして読み込む。実行時にインターネット接続は不要。WebViewにはOSネイティブのエンジン（Windows: WebView2、macOS: WKWebView）を使用するため、Chromiumは同梱されない。バイナリサイズは約10〜20 MB。
 
 ---
 
-## Window Configuration
+## ウィンドウ構成
 
-Two windows are used.
+2つのウィンドウを使用する。
 
-### Main Window
+### メインウィンドウ
 
-The full application. Standard window chrome with resize, minimize, maximize. Launching the app or clicking the tray icon opens this window. Closing the window hides it rather than quitting the process — the app continues running in the system tray.
+アプリ全体を表示する通常のウィンドウ。リサイズ・最小化・最大化の標準操作が可能。アプリ起動時またはトレイアイコンのクリックで表示される。ウィンドウを閉じてもプロセスは終了せず、システムトレイで常駐し続ける。
 
-### Overlay Window
+### オーバーレイウィンドウ
 
-A compact, always-on-top memo input panel for capturing ideas without switching away from the current task.
+作業中に他のアプリから切り替えることなく、瞬時のひらめきを書き留めるためのコンパクトなメモ入力パネル。
 
-| Property      | Value                                                    |
-| ------------- | -------------------------------------------------------- |
-| Size          | 320 × 200 px (resizable by user)                         |
-| Position      | Bottom-right corner, above taskbar                       |
-| Opacity       | 80% default (user-adjustable in settings)                |
-| Always on top | Yes                                                      |
-| Decorations   | Minimal (no standard title bar)                          |
-| Focus         | Always receives mouse events; toggle via global shortcut |
+| プロパティ      | 値                                                       |
+| -------------- | -------------------------------------------------------- |
+| サイズ          | 320 × 200 px（ユーザーがリサイズ可能）                    |
+| 位置           | 画面右下、タスクバーの上                                   |
+| 透明度          | デフォルト80%（設定で変更可能）                            |
+| 常に最前面      | 有効                                                     |
+| ウィンドウ装飾  | 最小限（標準タイトルバーなし）                              |
+| フォーカス      | 常にマウスイベントを受け取る。グローバルショートカットで切替 |
 
-On mouseover, opacity increases to 95% so the content is clearly readable while editing. On mouse leave, returns to configured opacity. The overlay window shows only the memo input field and a submit button — no navigation or full UI.
+マウスオーバー時は透明度が95%に上がり内容を明確に確認できる。マウスが離れると設定値の透明度に戻る。オーバーレイにはメモ入力欄と送信ボタンのみを表示し、ナビゲーションや全UI要素は表示しない。
 
-Toggled via:
+切り替え方法:
 
-- System tray context menu ("Show Overlay" / "Hide Overlay")
-- Global shortcut Ctrl+Shift+O (Windows) / Cmd+Shift+O (macOS)
+- システムトレイのコンテキストメニュー（「オーバーレイを表示」/「オーバーレイを非表示」）
+- グローバルショートカット: Ctrl+Shift+O（Windows）/ Cmd+Shift+O（macOS）
 
 ---
 
-## Desktop-Specific Features
+## デスクトップ固有機能
 
-### System Tray
+### システムトレイ
 
-A tray icon is present whenever the app is running. Right-click context menu:
+アプリ起動中は常にトレイアイコンを表示する。右クリックのコンテキストメニュー:
 
 ```text
-Open Hiramekin
-Show/Hide Overlay
+Hiramekinを開く
+オーバーレイを表示/非表示
 ────────────────
-Launch on Startup  [checkbox]
+ログイン時に自動起動  [チェックボックス]
 ────────────────
-Quit
+終了
 ```
 
-Left-clicking the tray icon toggles the main window (show if hidden, hide if visible).
+トレイアイコンの左クリックでメインウィンドウの表示/非表示を切り替える。
 
-### Global Shortcuts
+### グローバルショートカット
 
-| Shortcut                    | Action                    |
-| --------------------------- | ------------------------- |
-| Ctrl+Shift+H / Cmd+Shift+H  | Show / focus main window  |
-| Ctrl+Shift+O / Cmd+Shift+O  | Toggle overlay window     |
+| ショートカット               | 動作                         |
+| --------------------------- | ---------------------------- |
+| Ctrl+Shift+H / Cmd+Shift+H  | メインウィンドウを表示/フォーカス |
+| Ctrl+Shift+O / Cmd+Shift+O  | オーバーレイウィンドウを切り替え  |
 
-Shortcuts are active system-wide even when the app window is not focused.
+アプリウィンドウにフォーカスがない状態でもシステム全体で有効。
 
-### Auto-Start on Login
+### ログイン時の自動起動
 
-Disabled by default. User can enable via the tray context menu or app settings. Uses Tauri's `autostart` plugin (`tauri-plugin-autostart`).
+デフォルトで無効。トレイのコンテキストメニューまたはアプリ設定から有効化できる。`tauri-plugin-autostart` を使用。
 
-### File System Export
+### ファイルシステムへのエクスポート
 
-Users can export memos as `.txt` or `.json` files to a folder of their choice. Implemented via Tauri's `fs` and `dialog` APIs. Entry point is an "Export" button in app settings.
+メモを任意のフォルダに `.txt` または `.json` ファイルとしてエクスポートできる。TauriのfsおよびdialogAPIで実装。エントリポイントはアプリ設定内の「エクスポート」ボタン。
 
-Export formats:
+エクスポート形式:
 
-- **Text**: one memo per file, filename = first 40 chars of content + timestamp
-- **JSON**: single file containing all memos as an array
+- **テキスト**: メモ1件につき1ファイル、ファイル名 = 内容の先頭40文字 + タイムスタンプ
+- **JSON**: 全メモを配列として1ファイルにまとめて出力
 
-### Auto-Update
+### 自動アップデート
 
-Uses Tauri's built-in updater plugin (`tauri-plugin-updater`). On app launch, checks a JSON endpoint for new versions. If an update is available, shows a native dialog: "A new version (vX.X.X) is available. Update now?" The download and install happen in the background; the app relaunches to apply.
+`tauri-plugin-updater` を使用。アプリ起動時に新バージョンの有無をJSONエンドポイントで確認する。アップデートがある場合、ネイティブダイアログで通知:「新しいバージョン（vX.X.X）が利用可能です。今すぐ更新しますか?」ダウンロードとインストールはバックグラウンドで実行され、適用後にアプリが再起動する。
 
-The update manifest is hosted as a JSON file on GitHub Releases. The public key for signature verification is embedded in `tauri.conf.json` at build time.
-
----
-
-## IPC (Frontend ↔ Rust Communication)
-
-The web frontend communicates with the Rust backend via Tauri's `invoke` API.
-
-| Command              | Direction  | Purpose                                          |
-| -------------------- | ---------- | ------------------------------------------------ |
-| `show_overlay`       | JS → Rust  | Show overlay window                              |
-| `hide_overlay`       | JS → Rust  | Hide overlay window                              |
-| `set_overlay_opacity`| JS → Rust  | Adjust overlay transparency                      |
-| `export_memos`       | JS → Rust  | Open save dialog and write file                  |
-| `set_autostart`      | JS → Rust  | Enable or disable launch on startup              |
-| `memo_submitted`     | JS → Rust  | Notify Rust that a memo was saved (hides overlay)|
+アップデートマニフェストはGitHub ReleasesのJSONファイルとしてホストする。署名検証用の公開鍵はビルド時に `tauri.conf.json` に埋め込む。
 
 ---
 
-## Overlay UI
+## IPC（フロントエンド ↔ Rust間通信）
 
-The overlay uses a minimal subset of the existing app UI. A new conditional render mode is added to the web app that activates when a query param `?mode=overlay` is present. Tauri passes this param when opening the overlay window.
+webフロントエンドはTauriの `invoke` APIを通じてRustバックエンドと通信する。
 
-In overlay mode:
-
-- Only the text input field and submit button are shown
-- Background is slightly transparent (handled by the Tauri window `transparent: true` setting)
-- Submitting a memo dispatches `memo_submitted` via IPC, which causes the overlay to auto-hide
-
----
-
-## Distribution
-
-| Platform | Format                   | Notes                                                                      |
-| -------- | ------------------------ | -------------------------------------------------------------------------- |
-| Windows  | NSIS installer (`.exe`)  | SmartScreen warning on first run; user clicks "More info → Run anyway"     |
-| macOS    | DMG                      | Gatekeeper blocks unsigned app; user right-clicks → Open to bypass         |
-
-Code signing is not included in the initial release. A note in the download page explains the bypass procedure for each OS.
+| コマンド               | 方向        | 目的                                        |
+| --------------------- | ----------- | ------------------------------------------- |
+| `show_overlay`        | JS → Rust   | オーバーレイウィンドウを表示                  |
+| `hide_overlay`        | JS → Rust   | オーバーレイウィンドウを非表示                |
+| `set_overlay_opacity` | JS → Rust   | オーバーレイの透明度を変更                    |
+| `export_memos`        | JS → Rust   | 保存ダイアログを開いてファイルに書き出し        |
+| `set_autostart`       | JS → Rust   | 自動起動の有効/無効を切り替え                 |
+| `memo_submitted`      | JS → Rust   | メモ保存をRustに通知（オーバーレイを自動非表示）|
 
 ---
 
-## Out of Scope
+## オーバーレイUI
 
-- App Store distribution (requires separate sandboxing work)
-- Linux support (can be added later with minimal effort)
-- Native OS widgets or menu bar integration beyond system tray
-- Sync between desktop and mobile (uses the same underlying storage mechanism)
+既存アプリUIの最小サブセットをオーバーレイに使用する。クエリパラメータ `?mode=overlay` が付与されている場合に有効になる条件付きレンダリングモードをwebアプリに追加する。Tauriがオーバーレイウィンドウを開く際にこのパラメータを渡す。
+
+オーバーレイモードでの表示:
+
+- テキスト入力欄と送信ボタンのみ表示
+- 背景を半透明にする（Tauriウィンドウの `transparent: true` 設定で実現）
+- メモ送信後に `memo_submitted` をIPCで通知し、オーバーレイを自動非表示にする
+
+---
+
+## 配布形式
+
+| プラットフォーム | 形式                     | 備考                                                                    |
+| --------------- | ------------------------ | ----------------------------------------------------------------------- |
+| Windows         | NSISインストーラー (.exe) | 初回起動時にSmartScreen警告。「詳細情報 → 実行」でスキップ可能             |
+| macOS           | DMG                      | 未署名のためGatekeeperがブロック。右クリック → 「開く」で起動可能          |
+
+初回リリースはコード署名なし。ダウンロードページに各OSでの回避手順を記載する。
+
+---
+
+## スコープ外
+
+- App Store配布（別途サンドボックス対応が必要）
+- Linuxサポート（後から最小限の作業で追加可能）
+- システムトレイ以外のネイティブOSウィジェットやメニューバー統合
+- デスクトップとモバイル間のデータ同期（同一のストレージ機構を使用するため現状でも共有可能）
