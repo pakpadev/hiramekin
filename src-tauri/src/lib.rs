@@ -192,7 +192,8 @@ fn setup_overlay(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
     let x = (monitor_size.width as f64 / scale) - overlay_width - 20.0;
     let y = (monitor_size.height as f64 / scale) - overlay_height - 60.0;
 
-    WebviewWindowBuilder::new(app, "overlay", WebviewUrl::App("index.html?mode=overlay".into()))
+    let mut builder =
+        WebviewWindowBuilder::new(app, "overlay", WebviewUrl::App("index.html?mode=overlay".into()))
         .title("")
         .inner_size(overlay_width, overlay_height)
         .position(x, y)
@@ -200,9 +201,14 @@ fn setup_overlay(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
         .decorations(false)
         .skip_taskbar(true)
         .visible(false)
-        .resizable(true)
-        .transparent(true)
-        .build()?;
+        .resizable(true);
+
+    #[cfg(not(target_os = "macos"))]
+    {
+        builder = builder.transparent(true);
+    }
+
+    builder.build()?;
 
     Ok(())
 }
