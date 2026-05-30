@@ -4,6 +4,10 @@
 
 **Goal:** ExpoのWebビルドをTauri v2でラップし、Windows/macOS向けネイティブデスクトップアプリを作成する。システムトレイ常駐、グローバルショートカット、オーバーレイウィンドウ、自動起動、ファイルエクスポート、自動アップデートを実装する。
 
+**Implementation Status (2026-05-30):** コード実装とコンテナ内検証は完了。`npm test -- --runInBand`、`npm run typecheck`、`cargo check`、`npm run build:web`、`npm run tauri:build` は成功済み。Linuxコンテナでは `.deb` / `.rpm` / `.AppImage` が生成済み。Windows `.exe` / macOS `.dmg` の生成、インストーラー実行、トレイ・グローバルショートカット・自動起動・保存ダイアログの実機確認は各OS上で実施する。
+
+**Implementation Notes:** 設計書の `set_overlay_opacity` / `export_memos` / `set_autostart` 相当の機能は、Tauri IPCコマンドではなくフロントエンドからTauri plugin APIを直接呼ぶ形で実装した。`show_overlay` / `hide_overlay` / `memo_submitted` はRust IPCコマンドとして実装済み。
+
 **Architecture:** `expo export --platform web` で `dist/` を生成し、Tauri v2がその静的ファイルをOSネイティブのWebView（Windows: WebView2、macOS: WKWebView）で配信する。デスクトップ固有機能はRust（`src-tauri/src/lib.rs`）で実装し、Tauri IPC（`invoke` API）でフロントエンドと通信する。オーバーレイウィンドウは `index.html?mode=overlay` で別ウィンドウとして起動し、App.tsx でクエリパラメータを検出してシンプルな入力UIを描画する。
 
 **Tech Stack:** Tauri v2、Rust 1.77+、`@tauri-apps/api` v2、`@tauri-apps/plugin-global-shortcut`、`@tauri-apps/plugin-autostart`、`@tauri-apps/plugin-fs`、`@tauri-apps/plugin-dialog`、`@tauri-apps/plugin-updater`

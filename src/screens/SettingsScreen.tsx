@@ -1,4 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { enable, disable, isEnabled } from '@tauri-apps/plugin-autostart'
+import { open, save } from '@tauri-apps/plugin-dialog'
+import { writeTextFile } from '@tauri-apps/plugin-fs'
 import {
   Alert,
   FlatList,
@@ -11,6 +14,9 @@ import {
 } from 'react-native'
 import { getStorage } from '@/services/storage'
 import type { Memo } from '@/types'
+import { exportMemosAsTextFiles } from '@/utils/exportFiles'
+import { memosToJson } from '@/utils/export'
+import { isTauri } from '@/utils/tauri'
 
 interface SettingsScreenProps {
   onClose: () => void
@@ -19,10 +25,14 @@ interface SettingsScreenProps {
 
 const APK_DOWNLOAD_URL =
   'https://github.com/pakpadev/hiramekin/releases/download/v1.0.1-beta/hiramekin-v1.0.1-beta.apk'
+const OVERLAY_OPACITY_KEY = 'hiramekin-overlay-opacity'
+const OVERLAY_OPACITY_OPTIONS = [0.8, 0.88, 0.95] as const
 
 export function SettingsScreen({ onClose, isDark = false }: SettingsScreenProps) {
   const [archivedMemos, setArchivedMemos] = useState<Memo[]>([])
   const [showArchive, setShowArchive] = useState(false)
+  const [autostart, setAutostart] = useState(false)
+  const [overlayOpacity, setOverlayOpacity] = useState(0.88)
   const storage = useMemo(() => getStorage(), [])
 
   const loadArchived = useCallback(async () => {
@@ -35,6 +45,19 @@ export function SettingsScreen({ onClose, isDark = false }: SettingsScreenProps)
       loadArchived()
     }
   }, [loadArchived, showArchive])
+
+  useEffect(() => {
+    if (!isTauri()) return
+
+    isEnabled()
+      .then(setAutostart)
+      .catch(() => {})
+
+    const storedOpacity = Number(window.localStorage.getItem(OVERLAY_OPACITY_KEY))
+    if (OVERLAY_OPACITY_OPTIONS.includes(storedOpacity as any)) {
+      setOverlayOpacity(storedOpacity)
+    }
+  }, [])
 
   const handleRestore = async (id: string) => {
     await storage.restore(id)
@@ -58,6 +81,58 @@ export function SettingsScreen({ onClose, isDark = false }: SettingsScreenProps)
   const handleOpenDownload = () => {
     const downloadUrl = Platform.OS === 'web' ? '/download.html' : APK_DOWNLOAD_URL
     Linking.openURL(downloadUrl)
+  }
+
+  const handleAutostartToggle = async () => {
+    try {
+      if (autostart) {
+        await disable()
+      } else {
+        await enable()
+      }
+      setAutostart((value) => !value)
+    } catch (error) {
+      console.error('Autostart toggle failed:', error)
+    }
+  }
+
+  const handleExport = async (format: 'json' | 'txt') => {
+    try {
+      const activeMemos = await storage.getAll()
+      const archived = await storage.getArchived()
+      const memos = [...activeMemos, ...archived]
+
+      if (format === 'txt') {
+        const directory = await open({
+          directory: true,
+          multiple: false,
+          title: 'テキストエクスポート先を選択',
+        })
+
+        if (typeof directory === 'string') {
+          await exportMemosAsTextFiles(directory, memos)
+        }
+
+        return
+      }
+
+      const data = memosToJson(memos)
+      const path = await save({
+        defaultPath: 'hiramekin-export.json',
+        filters: [{ name: 'JSON', extensions: ['json'] }],
+      })
+
+      if (path) {
+        await writeTextFile(path, data)
+      }
+    } catch (error) {
+      console.error('Memo export failed:', error)
+    }
+  }
+
+  const handleOverlayOpacityChange = (opacity: number) => {
+    setOverlayOpacity(opacity)
+    window.localStorage.setItem(OVERLAY_OPACITY_KEY, String(opacity))
   }
 
   if (showArchive) {
@@ -161,6 +236,98 @@ export function SettingsScreen({ onClose, isDark = false }: SettingsScreenProps)
           アーカイブを見る
         </Text>
       </TouchableOpacity>
+      {isTauri() ? (
+        <TouchableOpacity
+          accessibilityRole="button"
+          style={[
+            styles.menuItem,
+            { borderBottomColor: isDark ? '#303030' : '#eee' },
+          ]}
+          onPress={handleAutostartToggle}
+        >
+          <Text style={[styles.menuLabel, { color: isDark ? '#f2f2f2' : '#111' }]}>
+            ログイン時に自動起動
+          </Text>
+          <Text style={[styles.menuDescription, { color: isDark ? '#aaa' : '#666' }]}>
+            {autostart ? '有効' : '無効'}
+          </Text>
+        </TouchableOpacity>
+      ) : null}
+      {isTauri() ? (
+        <View
+          style={[
+            styles.menuItem,
+            { borderBottomColor: isDark ? '#303030' : '#eee' },
+          ]}
+        >
+          <Text style={[styles.menuLabel, { color: isDark ? '#f2f2f2' : '#111' }]}>
+            オーバーレイ透明度
+          </Text>
+          <View style={styles.segmented}>
+            {OVERLAY_OPACITY_OPTIONS.map((opacity) => {
+              const selected = overlayOpacity === opacity
+
+              return (
+                <TouchableOpacity
+                  key={opacity}
+                  accessibilityRole="button"
+                  style={[
+                    styles.segment,
+                    {
+                      backgroundColor: selected ? '#00acc1' : 'transparent',
+                      borderColor: isDark ? '#404040' : '#d0d7de',
+                    },
+                  ]}
+                  onPress={() => handleOverlayOpacityChange(opacity)}
+                >
+                  <Text
+                    style={[
+                      styles.segmentLabel,
+                      { color: selected ? '#000' : isDark ? '#f2f2f2' : '#111' },
+                    ]}
+                  >
+                    {Math.round(opacity * 100)}%
+                  </Text>
+                </TouchableOpacity>
+              )
+            })}
+          </View>
+        </View>
+      ) : null}
+      {isTauri() ? (
+        <TouchableOpacity
+          accessibilityRole="button"
+          style={[
+            styles.menuItem,
+            { borderBottomColor: isDark ? '#303030' : '#eee' },
+          ]}
+          onPress={() => handleExport('json')}
+        >
+          <Text style={[styles.menuLabel, { color: isDark ? '#f2f2f2' : '#111' }]}>
+            メモをエクスポート (JSON)
+          </Text>
+          <Text style={[styles.menuDescription, { color: isDark ? '#aaa' : '#666' }]}>
+            全メモをJSONファイルに保存
+          </Text>
+        </TouchableOpacity>
+      ) : null}
+      {isTauri() ? (
+        <TouchableOpacity
+          accessibilityRole="button"
+          style={[
+            styles.menuItem,
+            { borderBottomColor: isDark ? '#303030' : '#eee' },
+          ]}
+          onPress={() => handleExport('txt')}
+        >
+          <Text style={[styles.menuLabel, { color: isDark ? '#f2f2f2' : '#111' }]}>
+            メモをエクスポート (テキスト)
+          </Text>
+          <Text style={[styles.menuDescription, { color: isDark ? '#aaa' : '#666' }]}>
+            メモごとにテキストファイルを保存
+          </Text>
+        </TouchableOpacity>
+      ) : null}
       <TouchableOpacity
         accessibilityRole="link"
         style={[
@@ -230,6 +397,24 @@ const styles = StyleSheet.create({
   restoreButton: {
     color: '#007AFF',
     fontSize: 14,
+  },
+  segmented: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 12,
+  },
+  segment: {
+    alignItems: 'center',
+    borderRadius: 6,
+    borderWidth: StyleSheet.hairlineWidth,
+    minHeight: 36,
+    minWidth: 68,
+    justifyContent: 'center',
+    paddingHorizontal: 12,
+  },
+  segmentLabel: {
+    fontSize: 14,
+    fontWeight: '700',
   },
   title: {
     fontSize: 17,

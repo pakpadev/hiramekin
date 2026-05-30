@@ -9,10 +9,13 @@ node_modules/
 
 # Claude Code (local tool config, not project config)
 .claude/
+.tauri/
 dist/
 web-build/
 artifacts/
 expo-env.d.ts
+src-tauri/target/
+src-tauri/gen/
 
 # Native
 *.orig.*

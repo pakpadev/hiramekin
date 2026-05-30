@@ -8,10 +8,11 @@ import {
 } from 'react-native'
 import { getTheme } from '@/theme'
 import { formatDateTime, formatTime, formatToday } from '@/utils/dateTime'
+import { isTauri } from '@/utils/tauri'
 
 interface KeyboardToolbarProps {
   onInsert: (text: string) => void
-  onMic: () => void
+  onMic: (() => void) | null
   isDark?: boolean
 }
 
@@ -142,17 +143,19 @@ export function KeyboardToolbar({
         >
           <Text style={labelStyle}>議事録</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          accessibilityRole="button"
-          testID="mic-button"
-          style={buttonStyle}
-          onPress={() => {
-            setShowTimeMenu(false)
-            onMic()
-          }}
-        >
-          <Text style={labelStyle}>マイク</Text>
-        </TouchableOpacity>
+        {!isTauri() ? (
+          <TouchableOpacity
+            accessibilityRole="button"
+            testID="mic-button"
+            style={buttonStyle}
+            onPress={() => {
+              setShowTimeMenu(false)
+              onMic?.()
+            }}
+          >
+            <Text style={labelStyle}>マイク</Text>
+          </TouchableOpacity>
+        ) : null}
       </ScrollView>
     </View>
   )

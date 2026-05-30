@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { getTheme } from '@/theme'
+import { isTauri } from '@/utils/tauri'
 
 interface PwaInstallBannerProps {
   isDark?: boolean
@@ -12,7 +13,7 @@ export function PwaInstallBanner({ isDark = false }: PwaInstallBannerProps) {
   const promptRef = useRef<any>(null)
 
   useEffect(() => {
-    if (Platform.OS !== 'web') return
+    if (Platform.OS !== 'web' || isTauri()) return
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker

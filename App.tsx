@@ -16,6 +16,7 @@ import { InputArea } from '@/components/InputArea'
 import { KeyboardToolbar } from '@/components/KeyboardToolbar'
 import { MemoList } from '@/components/MemoList'
 import { NotifyPicker } from '@/components/NotifyPicker'
+import { OverlayApp } from '@/components/OverlayApp'
 import { SearchBar } from '@/components/SearchBar'
 import { VoiceInput } from '@/components/VoiceInput'
 import { useHaptics } from '@/hooks/useHaptics'
@@ -28,8 +29,19 @@ import type { NotifyTiming } from '@/services/notifications'
 import { PwaInstallBanner } from '@/components/PwaInstallBanner'
 import { SettingsScreen } from '@/screens/SettingsScreen'
 import type { Memo, UIState } from '@/types'
+import { isTauri } from '@/utils/tauri'
+import { checkForDesktopUpdate } from '@/utils/updater'
 
 export default function App() {
+  if (
+    isTauri() &&
+    Platform.OS === 'web' &&
+    typeof window !== 'undefined' &&
+    new URLSearchParams(window.location.search).get('mode') === 'overlay'
+  ) {
+    return <OverlayApp />
+  }
+
   const [uiState, setUiState] = useState<UIState>({
     editingMemoId: null,
     searchQuery: '',
@@ -66,6 +78,10 @@ export default function App() {
   const { trigger } = useHaptics()
   const { schedule: scheduleNotification, cancel: cancelNotification } =
     useNotifications()
+
+  useEffect(() => {
+    checkForDesktopUpdate()
+  }, [])
 
   const allMemos = [...pinnedMemos, ...regularMemos]
   const currentMemo = uiState.editingMemoId
