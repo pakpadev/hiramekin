@@ -30,7 +30,7 @@ Release notes:
 docs/release/v1.0.9-desktop.md
 ```
 
-Download page:
+Download page for direct installers:
 
 ```text
 public/download.html

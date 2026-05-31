@@ -16,10 +16,10 @@ jobs:
         platform:
           - name: windows
             runner: windows-latest
-            artifact_glob: src-tauri/target/release/bundle/nsis/*
+            artifact_glob: src-tauri/target/release/bundle/**/*
           - name: macos
             runner: macos-latest
-            artifact_glob: src-tauri/target/release/bundle/dmg/*
+            artifact_glob: src-tauri/target/release/bundle/**/*
 
     steps:
       - name: Checkout

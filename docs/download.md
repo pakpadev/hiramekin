@@ -2,10 +2,10 @@
 
 ## 方針
 
-Hiramekin の配布元は GitHub Releases に統一する。
+Hiramekin のファイル保管先は GitHub Releases に統一し、ユーザーの導線は `public/download.html` に集約する。
 
-- デスクトップ版: GitHub Releases の Windows / macOS インストーラー
-- Android beta: 既存の GitHub Releases APK
+- デスクトップ版: ダウンロードページから Windows / macOS インストーラーを直接ダウンロード
+- Android beta: ダウンロードページから既存の GitHub Releases APK を直接ダウンロード
 - 配布ページ: `public/download.html`
 - デスクトップ版タグ: `desktop-v1.0.9`
 - Android betaタグ: `v1.0.9-beta`
@@ -25,14 +25,17 @@ Hiramekin の配布元は GitHub Releases に統一する。
 
 ### 配布URL
 
-Desktop Build の成果物を GitHub Release に添付後、以下のReleaseページから配布する。
+Desktop Build の成果物を GitHub Release に添付後、ダウンロードページにOS別の直接リンクを載せる。
 
 ```text
-https://github.com/pakpadev/hiramekin/releases
+https://github.com/pakpadev/hiramekin/releases/download/desktop-v1.0.9/Hiramekin_1.0.9_x64-setup.exe
+https://github.com/pakpadev/hiramekin/releases/download/desktop-v1.0.9/Hiramekin_1.0.9_x64_en-US.msi
+https://github.com/pakpadev/hiramekin/releases/download/desktop-v1.0.9/Hiramekin_1.0.9_x64.dmg
+https://github.com/pakpadev/hiramekin/releases/download/desktop-v1.0.9/Hiramekin.app.tar.gz
 ```
 
-ダウンロードページでは、壊れた直リンクを避けるため、Releaseページへ誘導する。
-最終的なasset名が確定したら、必要に応じてOS別の直接リンクへ差し替える。
+ユーザーにはGitHub Releases画面へ遷移させず、ダウンロードページ上のボタンから直接取得させる。
+Release asset名がActions成果物と異なる場合は、上記のファイル名に揃えてReleaseへアップロードする。
 
 ## Android beta
 
@@ -60,7 +63,7 @@ https://github.com/pakpadev/hiramekin/releases
    - ファイルエクスポート
 1. GitHub Releases に `desktop-v1.0.9` を作成する。
 1. Artifacts内のインストーラー、自動更新用アーカイブ、署名ファイルをRelease assetsとしてアップロードする。
-1. `public/download.html` からReleaseページへ遷移できることを確認する。
+1. `public/download.html` のOS別ボタンから直接ダウンロードできることを確認する。
 
 ## 自動アップデート
 

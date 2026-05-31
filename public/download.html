@@ -74,7 +74,7 @@
 
       .download-grid {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 12px;
         margin-top: 16px;
       }
@@ -82,6 +82,7 @@
       .download-card {
         display: grid;
         gap: 8px;
+        align-content: start;
         padding: 16px;
         border: 1px solid var(--border);
         border-radius: 8px;
@@ -114,7 +115,14 @@
         text-decoration: none;
       }
 
-      .secondary a,
+      .download-actions {
+        display: grid;
+        gap: 8px;
+        margin-top: 4px;
+      }
+
+      .download-card a.secondary-link,
+      .android-card a,
       .pwa-button {
         background: transparent;
         color: var(--accent);
@@ -191,11 +199,22 @@
         <p class="section-title">Download</p>
         <div class="download-grid">
           <div class="download-card">
-            <h2>Windows / macOS</h2>
-            <p>Windows の .exe / .msi と macOS の .dmg は GitHub Releases からダウンロードできます。</p>
-            <a href="https://github.com/pakpadev/hiramekin/releases">GitHub Releases を開く</a>
+            <h2>Windows</h2>
+            <p>Windows 10 / 11 向けのデスクトップ版です。</p>
+            <div class="download-actions">
+              <a href="https://github.com/pakpadev/hiramekin/releases/download/desktop-v1.0.9/Hiramekin_1.0.9_x64-setup.exe">.exe をダウンロード</a>
+              <a class="secondary-link" href="https://github.com/pakpadev/hiramekin/releases/download/desktop-v1.0.9/Hiramekin_1.0.9_x64_en-US.msi">.msi をダウンロード</a>
+            </div>
           </div>
-          <div class="download-card secondary">
+          <div class="download-card">
+            <h2>macOS</h2>
+            <p>macOS 向けのデスクトップ版です。</p>
+            <div class="download-actions">
+              <a href="https://github.com/pakpadev/hiramekin/releases/download/desktop-v1.0.9/Hiramekin_1.0.9_x64.dmg">.dmg をダウンロード</a>
+              <a class="secondary-link" href="https://github.com/pakpadev/hiramekin/releases/download/desktop-v1.0.9/Hiramekin.app.tar.gz">.app.tar.gz</a>
+            </div>
+          </div>
+          <div class="download-card android-card">
             <h2>Android beta</h2>
             <p>Android 6.0 以上向けの直接配布APKです。</p>
             <a href="https://github.com/pakpadev/hiramekin/releases/download/v1.0.9-beta/hiramekin-v1.0.9-beta.apk">APKをダウンロード</a>
@@ -218,6 +237,7 @@
         <p class="section-title">Known Notes</p>
         <ul class="notes">
           <li>macOSでは完全なネイティブ透明ウィンドウではなく、React側の透明度でオーバーレイを表現します。</li>
+          <li>デスクトップ版の直接リンクは、GitHub Release作成後に有効になります。</li>
           <li>マイクやショートカットはOS側の権限許可が必要になる場合があります。</li>
           <li>Android APKでは提供元不明アプリの確認画面が表示される場合があります。</li>
         </ul>
